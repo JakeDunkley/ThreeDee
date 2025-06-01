@@ -11,6 +11,8 @@ public class Program
     {
         Console.WriteLine("Starting.....");
 
+        bool asdf = WindowManager.Window.SetActive();
+
         System.Numerics.Vector3 a =  new(-0.25f, -0.25f, 1.0f);
         System.Numerics.Vector3 b =  new(-0.25f,  0.25f, 1.0f);
         System.Numerics.Vector3 c =  new( 0.25f, -0.25f, 1.0f);
@@ -27,15 +29,20 @@ public class Program
         t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
         t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
 
-        // Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "out/square2");
+        SFML.Graphics.CircleShape shape = new()
+        {
+            Radius = 10,
+            Position = new Vector2f(200, 200),
+            FillColor = Color.Red,
+        };
 
-        Texture texture = new(WindowManager.WindowSizeX, WindowManager.WindowSizeY);
-        bool hasSaved = false;
+        // Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "out/square2");
 
         while (WindowManager.WindowIsOpen)
         {
             TickManager.FrameStart();
 
+            WindowManager.DispatchEvents();
             WindowManager.ClearWindow();
 
             // Your frame rendering code here.....
@@ -45,24 +52,10 @@ public class Program
             t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
             t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
 
-            texture.Update(WindowManager.ConvertPixelGridToByteArray());
-            Image img = texture.CopyToImage();
-            
-            if (!hasSaved)
-            {
-                img.SaveToFile("texture.png");
-                hasSaved = true;
-            }
-
-            Sprite sprite = new(texture)
-            {
-                Position = new SFML.System.Vector2f(0, 0)
-            };
-
-            sprite.Draw(WindowManager.Window, WindowManager.RenderStates);
+            WindowManager.Draw();
 
             WindowManager.DisplayWindow();
-            WindowManager.UpdateWindow();
+            WindowManager.CheckIfShouldClose();
 
             TickManager.FrameEnd();
             Console.WriteLine(TickManager.Debug_FrameTime());

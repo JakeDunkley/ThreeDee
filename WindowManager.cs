@@ -11,6 +11,8 @@ public static class WindowManager
 
     public static readonly RenderWindow Window = new(new VideoMode(WindowSizeX, WindowSizeY), _windowTitle);
     public static readonly RenderStates RenderStates = new();
+    public static readonly Texture WindowTexture = new(WindowSizeX, WindowSizeY);
+    public static readonly Sprite WindowSprite = new(WindowTexture);
 
     public static readonly List<List<System.Numerics.Vector3>> PixelGrid = InitializePixelGrid();
 
@@ -27,11 +29,16 @@ public static class WindowManager
         }
     }
 
+    public static void Draw()
+    {
+        WindowTexture.Update(ConvertPixelGridToByteArray());
+        Window.Draw(WindowSprite);       
+    }
+
     public static void DisplayWindow() => Window.Display();
 
-    public static void UpdateWindow()
+    public static void DispatchEvents()
     {
-        CheckIfShouldClose();
         Window.WaitAndDispatchEvents();
     }
 
