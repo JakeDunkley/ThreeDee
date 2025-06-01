@@ -27,20 +27,45 @@ public class Program
         t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
         t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
 
-        Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "square");
+        // Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "out/square2");
 
-        // while (WindowManager.Window.IsOpen)
-        // {
-        //     TickManager.FrameStart();
+        Texture texture = new(WindowManager.WindowSizeX, WindowManager.WindowSizeY);
+        bool hasSaved = false;
 
-        //     WindowManager.ClearWindow();
+        while (WindowManager.WindowIsOpen)
+        {
+            TickManager.FrameStart();
 
-        //     // Your frame rendering code here.....
+            WindowManager.ClearWindow();
 
-        //     WindowManager.DisplayWindow();
-        //     WindowManager.CheckIfShouldClose();
+            // Your frame rendering code here.....
+            t2D1 = t3D1.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
+            t2D2 = t3D2.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
 
-        //     TickManager.FrameEnd();
-        // }
+            t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
+            t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
+
+            texture.Update(WindowManager.ConvertPixelGridToByteArray());
+            Image img = texture.CopyToImage();
+            
+            if (!hasSaved)
+            {
+                img.SaveToFile("texture.png");
+                hasSaved = true;
+            }
+
+            Sprite sprite = new(texture)
+            {
+                Position = new SFML.System.Vector2f(0, 0)
+            };
+
+            sprite.Draw(WindowManager.Window, WindowManager.RenderStates);
+
+            WindowManager.DisplayWindow();
+            WindowManager.UpdateWindow();
+
+            TickManager.FrameEnd();
+            Console.WriteLine(TickManager.Debug_FrameTime());
+        }
     }
 }

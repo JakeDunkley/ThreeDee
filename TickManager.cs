@@ -19,6 +19,11 @@ public static class TickManager
     public static double TickDelta => _ticksThisFrame * InverseTickRate;
     public static long MicrosecondsElapsed => _microsecondsElapsed;
 
+    public static string Debug_FrameTime()
+    {
+        return $"{(_microsecondsThisFrame * 0.001f):F2}ms";
+    }
+
     public static void FrameStart()
     {
         _clock.Restart();
