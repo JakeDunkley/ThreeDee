@@ -11,41 +11,23 @@ public class Program
     {
         Console.WriteLine("Starting.....");
 
-        System.Numerics.Vector3 a = new(20, 20, 0f);
-        System.Numerics.Vector3 b = new(256, 492, 0f);
-        System.Numerics.Vector3 c = new(492, 20, 0f);
+        System.Numerics.Vector3 a =  new(-0.25f, -0.25f, 1.0f);
+        System.Numerics.Vector3 b =  new(-0.25f,  0.25f, 1.0f);
+        System.Numerics.Vector3 c =  new( 0.25f, -0.25f, 1.0f);
+        System.Numerics.Vector3 b2 = new(-0.25f,  0.25f, 2.0f);
+        System.Numerics.Vector3 c2 = new( 0.25f, -0.25f, 2.0f);
+        System.Numerics.Vector3 d =  new( 0.25f,  0.25f, 2.0f);
 
-        Triangle triangle = new(a, b, c);
+        Triangle3D t3D1 = new(a, b, c);
+        Triangle3D t3D2 = new(c2, b2, d);
 
-        for (int row = 0; row < WindowManager.WindowSizeY; row++)
-        {
-            for (int col = 0; col < WindowManager.WindowSizeX; col++)
-            {
-                System.Numerics.Vector3 coord = new System.Numerics.Vector3(col, row, 0f);
+        Triangle2D t2D1 = t3D1.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
+        Triangle2D t2D2 = t3D2.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
 
-                if (triangle.IsPointInside(coord))
-                {
-                    WindowManager.PixelGrid[row][col] = new System.Numerics.Vector3((float)col / WindowManager.WindowSizeX, (float)row / WindowManager.WindowSizeY, 0f);
-                }
+        t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
+        t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
 
-                if (a.X == coord.X && a.Y == coord.Y)
-                {
-                    WindowManager.PixelGrid[row][col] = new System.Numerics.Vector3(0f, 1f, 1f);
-                }
-
-                if (b.X == coord.X && b.Y == coord.Y)
-                {
-                    WindowManager.PixelGrid[row][col] = new System.Numerics.Vector3(1f, 0f, 1f);
-                }
-
-                if (c.X == coord.X && c.Y == coord.Y)
-                {
-                    WindowManager.PixelGrid[row][col] = new System.Numerics.Vector3(1f, 1f, 0f);
-                }
-            }
-        }
-
-        Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "triangleTest");
+        Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "square");
 
         // while (WindowManager.Window.IsOpen)
         // {
