@@ -113,7 +113,7 @@ public struct Triangle2D
         return ab && bc && ca;
     }
 
-    public readonly void Render(Vector3 color)
+    public readonly void Render(Structs.Color color)
     {
         for (int row = 0; row < WindowManager.WindowSizeY; row++)
         {
@@ -121,8 +121,7 @@ public struct Triangle2D
             {
                 if (IsPointInside(new Vector2(col, row)))
                 {
-                    // WindowManager.PixelGrid[row][col] = new Vector3((float)col / WindowManager.WindowSizeX, (float)row / WindowManager.WindowSizeY, 0f);
-                    WindowManager.PixelGrid[row][col] = color;
+                    WindowManager.PixelGrid[row, col] = color;
                 }
             }
         }

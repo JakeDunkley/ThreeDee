@@ -14,17 +14,17 @@ public static class WindowManager
     public static readonly Texture WindowTexture = new(WindowSizeX, WindowSizeY);
     public static readonly Sprite WindowSprite = new(WindowTexture);
 
-    public static readonly List<List<System.Numerics.Vector3>> PixelGrid = InitializePixelGrid();
+    public static readonly Structs.Color[,] PixelGrid = InitializePixelGrid();
 
     public static bool WindowIsOpen => Window.IsOpen;
 
     public static void ClearWindow()
     {
-        foreach (List<System.Numerics.Vector3> row in PixelGrid)
+        for (int row = 0; row < WindowSizeY; row++)
         {
-            for (int col = 0; col < WindowSizeY; col++)
+            for (int col = 0; col < WindowSizeX; col++)
             {
-                row[col] = System.Numerics.Vector3.Zero;
+                PixelGrid[row, col] = Structs.Color.Black;
             }
         }
     }
@@ -50,17 +50,15 @@ public static class WindowManager
         }
     }
 
-    private static List<List<System.Numerics.Vector3>> InitializePixelGrid()
+    private static Structs.Color[,] InitializePixelGrid()
     {
-        List<List<System.Numerics.Vector3>> pixelGrid = [];
+        Structs.Color[,] pixelGrid = new Structs.Color[WindowSizeY, WindowSizeX];
 
         for (int row = 0; row < WindowSizeY; row++)
         {
-            pixelGrid.Add([]);
-
             for (int col = 0; col < WindowSizeX; col++)
             {
-                pixelGrid[row].Add(System.Numerics.Vector3.Zero);
+                pixelGrid[row, col] = Structs.Color.Black;
             }
         }
 
@@ -77,9 +75,9 @@ public static class WindowManager
             {
                 int pixelCoordinate = ((WindowSizeY - row - 1) * WindowSizeY + col) * 4;
 
-                bytes[pixelCoordinate]     = (byte)(255 * PixelGrid[row][col].X);
-                bytes[pixelCoordinate + 1] = (byte)(255 * PixelGrid[row][col].Y);
-                bytes[pixelCoordinate + 2] = (byte)(255 * PixelGrid[row][col].Z);
+                bytes[pixelCoordinate]     = PixelGrid[row, col].ByteR;
+                bytes[pixelCoordinate + 1] = PixelGrid[row, col].ByteG;
+                bytes[pixelCoordinate + 2] = PixelGrid[row, col].ByteB;
                 bytes[pixelCoordinate + 3] = (byte)255;
             }
         }

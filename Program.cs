@@ -2,6 +2,7 @@
 using SFML.Graphics;
 using ThreeDee.Structs;
 using SFML.Window;
+using System.Numerics;
 
 namespace ThreeDee;
 
@@ -11,32 +12,25 @@ public class Program
     {
         Console.WriteLine("Starting.....");
 
-        bool asdf = WindowManager.Window.SetActive();
+        WindowManager.Window.SetActive();
 
-        System.Numerics.Vector3 a =  new(-0.25f, -0.25f, 1.0f);
-        System.Numerics.Vector3 b =  new(-0.25f,  0.25f, 1.0f);
-        System.Numerics.Vector3 c =  new( 0.25f, -0.25f, 1.0f);
-        System.Numerics.Vector3 b2 = new(-0.25f,  0.25f, 2.0f);
-        System.Numerics.Vector3 c2 = new( 0.25f, -0.25f, 2.0f);
-        System.Numerics.Vector3 d =  new( 0.25f,  0.25f, 2.0f);
+        Vector3 a = new(-0.35f, -0.25f, 1.0f);
+        Vector3 b = new(-0.35f,  0.25f, 1.0f);
+        Vector3 c = new( 0.15f, -0.25f, 1.0f);
+        Vector3 d = new(-0.35f, -0.25f, 2.0f);
+        Vector3 e = new(-0.35f,  0.25f, 2.0f);
+        Vector3 f = new( 0.15f, -0.25f, 2.0f);
+        Vector3 g = new(-0.35f, -0.25f, 3.0f);
+        Vector3 h = new(-0.35f,  0.25f, 3.0f);
+        Vector3 i = new( 0.15f, -0.25f, 3.0f);
 
-        Triangle3D t3D1 = new(a, b, c);
-        Triangle3D t3D2 = new(c2, b2, d);
+        Triangle3D t1a = new(a, b, c);
+        Triangle3D t2a = new(d, e, f);
+        Triangle3D t3a = new(g, h, i);
 
-        Triangle2D t2D1 = t3D1.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
-        Triangle2D t2D2 = t3D2.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
-
-        t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
-        t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
-
-        SFML.Graphics.CircleShape shape = new()
-        {
-            Radius = 10,
-            Position = new Vector2f(200, 200),
-            FillColor = Color.Red,
-        };
-
-        // Helpers.WriteImageDataToFile(WindowManager.PixelGrid, "out/square2");
+        Triangle2D t1b = t1a.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
+        Triangle2D t2b = t2a.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
+        Triangle2D t3b = t3a.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
 
         while (WindowManager.WindowIsOpen)
         {
@@ -46,11 +40,9 @@ public class Program
             WindowManager.ClearWindow();
 
             // Your frame rendering code here.....
-            t2D1 = t3D1.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
-            t2D2 = t3D2.ProjectToScreenSpace(1f, 1f, 1f, WindowManager.WindowSizeX, WindowManager.WindowSizeY);
-
-            t2D1.Render(new System.Numerics.Vector3(0.33f, 0.00f, 0.67f));
-            t2D2.Render(new System.Numerics.Vector3(0.50f, 0.67f, 0.13f));
+            t3b.Render(Structs.Color.Red);
+            t2b.Render(Structs.Color.Green);
+            t1b.Render(Structs.Color.Blue);
 
             WindowManager.Draw();
 
