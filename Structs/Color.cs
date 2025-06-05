@@ -29,6 +29,21 @@ public struct Color
         RGB = new((float)r, (float)g, (float)b);
     }
 
+    public Color(Random? gen)
+    {
+        gen ??= new Random();
+
+        float r = gen.NextSingle();
+        float g = gen.NextSingle();
+        float b = gen.NextSingle();
+
+        RGB = new(
+            r,
+            g,
+            b
+        );
+    }
+
     public static Color Black => new(0, 0, 0);
     public static Color Red => new(1, 0, 0);
     public static Color Green => new(0, 1, 0);

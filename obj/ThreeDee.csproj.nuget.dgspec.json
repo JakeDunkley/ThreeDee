@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\MyProjects\\ThreeDee\\ThreeDee.csproj": {}
+    "c:\\MyProjects\\ThreeDee\\ThreeDee.csproj": {}
   },
   "projects": {
-    "C:\\MyProjects\\ThreeDee\\ThreeDee.csproj": {
+    "c:\\MyProjects\\ThreeDee\\ThreeDee.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\MyProjects\\ThreeDee\\ThreeDee.csproj",
+        "projectUniqueName": "c:\\MyProjects\\ThreeDee\\ThreeDee.csproj",
         "projectName": "ThreeDee",
-        "projectPath": "C:\\MyProjects\\ThreeDee\\ThreeDee.csproj",
+        "projectPath": "c:\\MyProjects\\ThreeDee\\ThreeDee.csproj",
         "packagesPath": "C:\\Users\\jake\\.nuget\\packages\\",
-        "outputPath": "C:\\MyProjects\\ThreeDee\\obj\\",
+        "outputPath": "c:\\MyProjects\\ThreeDee\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\jake\\AppData\\Roaming\\NuGet\\NuGet.Config"

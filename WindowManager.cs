@@ -39,7 +39,7 @@ public static class WindowManager
 
     public static void DispatchEvents()
     {
-        Window.WaitAndDispatchEvents();
+        Window.DispatchEvents();
     }
 
     public static void CheckIfShouldClose()

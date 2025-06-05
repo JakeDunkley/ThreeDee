@@ -1,5 +1,4 @@
 using System.Numerics;
-using SFML.System;
 
 namespace ThreeDee.Structs;
 
@@ -19,6 +18,22 @@ public struct Triangle3D
 
     public readonly Vector3[] WorldSpaceBoundingBox => CalculateBoundingBox3D();
 
+    public readonly void Scale(Vector3 scalars)
+    {
+        for (int i = 0; i < Vertices.Length; i++)
+        {
+            Vertices[i] = Vector3.Multiply(Vertices[i], scalars);
+        }
+    }
+
+    public readonly void Translate(Vector3 translation)
+    {
+        for (int i = 0; i < Vertices.Length; i++)
+        {
+            Vertices[i] = Vector3.Add(Vertices[i], translation);
+        }
+    }
+
     public static bool IsPointToRightOfLine(Vector3 a, Vector3 b, Vector3 point)
     {
         Vector3 aToB = Vector3.Normalize(Vector3.Subtract(b, a));
@@ -35,7 +50,7 @@ public struct Triangle3D
         bool bc = IsPointToRightOfLine(Vertices[1], Vertices[2], point);
         bool ca = IsPointToRightOfLine(Vertices[2], Vertices[0], point);
 
-        return ab && bc && ca;
+        return ab == bc && bc == ca;
     }
 
     public readonly Triangle3D ProjectOntoProjectionPlane(float depth)
@@ -94,6 +109,8 @@ public struct Triangle2D
         Vertices = [a, b, c];
     }
 
+    public readonly Vector4 Bounds => CalculateBounds();
+
     public static bool IsPointToRightOfLine(Vector2 a, Vector2 b, Vector2 point)
     {
         Vector2 aToB = Vector2.Normalize(Vector2.Subtract(b, a));
@@ -110,7 +127,7 @@ public struct Triangle2D
         bool bc = IsPointToRightOfLine(Vertices[1], Vertices[2], point);
         bool ca = IsPointToRightOfLine(Vertices[2], Vertices[0], point);
 
-        return ab && bc && ca;
+        return ab == bc && bc == ca;
     }
 
     public readonly void Render(Structs.Color color)
@@ -119,11 +136,31 @@ public struct Triangle2D
         {
             for (int col = 0; col < WindowManager.WindowSizeX; col++)
             {
-                if (IsPointInside(new Vector2(col, row)))
+                // Vector2 screenSpaceCoords = new(col / WindowManager.WindowSizeX, row / WindowManager.WindowSizeY);
+
+                if (PointIsInBounds(new Vector2(col, row)) && IsPointInside(new Vector2(col, row)))
                 {
                     WindowManager.PixelGrid[row, col] = color;
                 }
             }
         }
+    }
+
+    public readonly Vector4 CalculateBounds()
+    {
+        Vector2 min = Vector2.Min(Vector2.Min(Vertices[0], Vertices[1]), Vertices[2]);
+        Vector2 max = Vector2.Max(Vector2.Max(Vertices[0], Vertices[1]), Vertices[2]);
+
+        return new Vector4(
+            min.X,
+            min.Y,
+            max.X,
+            max.Y
+        );
+    }
+
+    public readonly bool PointIsInBounds(Vector2 point)
+    {
+        return point.X >= Bounds[0] && point.Y >= Bounds[1] && point.X <= Bounds[2] && point.Y <= Bounds[3];
     }
 }

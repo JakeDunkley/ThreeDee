@@ -19,9 +19,9 @@ public static class TickManager
     public static double TickDelta => _ticksThisFrame * InverseTickRate;
     public static long MicrosecondsElapsed => _microsecondsElapsed;
 
-    public static string Debug_FrameTime()
+    public static string Debug_FrameTimeInfo()
     {
-        return $"{(_microsecondsThisFrame * 0.001f):F2}ms";
+        return $"{(_microsecondsThisFrame * 0.001f):F2}ms - {_ticksThisFrame} ticks";
     }
 
     public static void FrameStart()
@@ -35,16 +35,16 @@ public static class TickManager
     /// </summary>
     public static void FrameEnd()
     {
-        _microsecondsThisFrame = _clock.ElapsedTime.AsMicroseconds() + _microsecondsOverLastFrame;
+        _microsecondsThisFrame = _clock.ElapsedTime.AsMicroseconds();
+        _microsecondsOverLastFrame += _microsecondsThisFrame;
         _microsecondsElapsed += _microsecondsThisFrame;
 
-        while (_microsecondsThisFrame > MicrosecondsPerTick)
+        while (_microsecondsOverLastFrame > MicrosecondsPerTick)
         {
-            _microsecondsThisFrame -= MicrosecondsPerTick;
+            _microsecondsOverLastFrame -= MicrosecondsPerTick;
             _ticksThisFrame += 1;
         }
 
-        _microsecondsOverLastFrame = _microsecondsThisFrame;
         _ticksElapsed += _ticksThisFrame;
     }
 }
