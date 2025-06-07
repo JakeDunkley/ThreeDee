@@ -4,6 +4,8 @@ namespace ThreeDee.Structs;
 
 public struct Color
 {
+    private static readonly Random _rng = new();
+
     public Vector3 RGB;
 
     public readonly float R => RGB.X;
@@ -29,22 +31,9 @@ public struct Color
         RGB = new((float)r, (float)g, (float)b);
     }
 
-    public Color(Random? gen)
-    {
-        gen ??= new Random();
-
-        float r = gen.NextSingle();
-        float g = gen.NextSingle();
-        float b = gen.NextSingle();
-
-        RGB = new(
-            r,
-            g,
-            b
-        );
-    }
-
+    public static Color Random => new(_rng.NextSingle(), _rng.NextSingle(), _rng.NextSingle());
     public static Color Black => new(0, 0, 0);
+    public static Color White => new(1, 1, 1);
     public static Color Red => new(1, 0, 0);
     public static Color Green => new(0, 1, 0);
     public static Color Blue => new(0, 0, 1);
