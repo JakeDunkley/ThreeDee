@@ -83,7 +83,7 @@ public readonly struct Model
                     vertices.Add(new Vector3(
                         float.Parse(splits[1]),
                         float.Parse(splits[2]),
-                        float.Parse(splits[3])
+                        -float.Parse(splits[3])
                     ));
 
                     break;
@@ -92,9 +92,9 @@ public readonly struct Model
                 // we need have already been parsed before any triangles are constructed.
                 case "f":
                     triangles.Add(new Triangle3D(
-                        vertices[int.Parse(splits[1][0].ToString()) - 1],
-                        vertices[int.Parse(splits[2][0].ToString()) - 1],
-                        vertices[int.Parse(splits[3][0].ToString()) - 1]
+                        vertices[int.Parse(splits[1].Split('/')[0]) - 1],
+                        vertices[int.Parse(splits[2].Split('/')[0]) - 1],
+                        vertices[int.Parse(splits[3].Split('/')[0]) - 1]
                     ));
 
                     break;

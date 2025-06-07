@@ -11,9 +11,9 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        Model model = Model.FromWavefrontFile("../../../models/cube.obj");
-        model.Scale(new Vector3(10));
-        model.Translate(new Vector3(0, 0, 20));
+        Model model = Model.FromWavefrontFile("../../../models/icoHemi.obj");
+        model.Scale(new Vector3(1));
+        model.Translate(new Vector3(0, 0, 4));
 
         while (WindowManager.WindowIsOpen)
         {
@@ -21,6 +21,11 @@ public class Program
 
             WindowManager.DispatchEvents();
             WindowManager.ClearWindow();
+
+            float x = (float)Math.Cos(TickManager.SecondsElapse * 10) * 0.05f;
+            float y = (float)Math.Sin(TickManager.SecondsElapse * 10) * 0.05f;
+
+            model.Translate(new Vector3(x, y, 0));
 
             model.Render();
 

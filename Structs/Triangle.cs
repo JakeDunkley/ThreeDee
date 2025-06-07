@@ -109,8 +109,6 @@ public struct Triangle2D
         Vertices = [a, b, c];
     }
 
-    public readonly Vector4 Bounds => CalculateBounds();
-
     public static bool IsPointToRightOfLine(Vector2 a, Vector2 b, Vector2 point)
     {
         Vector2 aToB = Vector2.Normalize(Vector2.Subtract(b, a));
@@ -132,13 +130,13 @@ public struct Triangle2D
 
     public readonly void Render(Structs.Color color)
     {
-        for (int row = 0; row < WindowManager.WindowSizeY; row++)
-        {
-            for (int col = 0; col < WindowManager.WindowSizeX; col++)
-            {
-                // Vector2 screenSpaceCoords = new(col / WindowManager.WindowSizeX, row / WindowManager.WindowSizeY);
+        int[] bounds = CalculateBoundsRound();
 
-                if (PointIsInBounds(new Vector2(col, row)) && IsPointInside(new Vector2(col, row)))
+        for (int row = bounds[1]; row <= bounds[3]; row++)
+        {
+            for (int col = bounds[0]; col <= bounds[2]; col++)
+            {
+                if (IsPointInside(new Vector2(col, row)))
                 {
                     WindowManager.PixelGrid[row, col] = color;
                 }
@@ -159,8 +157,17 @@ public struct Triangle2D
         );
     }
 
-    public readonly bool PointIsInBounds(Vector2 point)
+    public readonly int[] CalculateBoundsRound()
     {
-        return point.X >= Bounds[0] && point.Y >= Bounds[1] && point.X <= Bounds[2] && point.Y <= Bounds[3];
+        Vector2 min = Vector2.Min(Vector2.Min(Vertices[0], Vertices[1]), Vertices[2]);
+        Vector2 max = Vector2.Max(Vector2.Max(Vertices[0], Vertices[1]), Vertices[2]);
+
+        return
+        [
+            Math.Max(0, (int)Math.Floor(min.X)),
+            Math.Max(0, (int)Math.Floor(min.Y)),
+            Math.Min(WindowManager.WindowSizeX - 1, (int)Math.Ceiling(max.X)),
+            Math.Min(WindowManager.WindowSizeY - 1, (int)Math.Ceiling(max.Y))
+        ];
     }
 }

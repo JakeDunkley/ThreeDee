@@ -18,6 +18,7 @@ public static class TickManager
     public static int TicksThisFrame => _ticksThisFrame;
     public static double TickDelta => _ticksThisFrame * InverseTickRate;
     public static long MicrosecondsElapsed => _microsecondsElapsed;
+    public static double SecondsElapse => _microsecondsElapsed * 0.000001;
 
     public static string Debug_FrameTimeInfo()
     {
