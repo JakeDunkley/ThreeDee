@@ -11,9 +11,12 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        Model model = new("../../../models/cube.obj");
+        Model model = new("../../../models/suzanne.obj");
         model.Scale(new Vector3(1));
-        model.Translate(new Vector3(0, 0, 2));
+        model.Translate(new Vector3(0, 0, 4));
+
+        RenderManager.MaterialTest();
+
 
         while (WindowManager.WindowIsOpen)
         {

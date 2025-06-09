@@ -51,7 +51,7 @@ public struct Triangle2D(int a, int b, int c)
         bool bc = IsPointToRightOfLine(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], point);
         bool ca = IsPointToRightOfLine(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1], point);
 
-        return ab == bc && bc == ca;
+        return !(ab || bc || ca);
     }
 
     public readonly int[] CalculatePixelScreenSpaceBounds()

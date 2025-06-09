@@ -52,16 +52,22 @@ public static class RenderManager
         }
     }
 
+    public static void MaterialTest()
+    {
+        foreach (Triangle3D _ in WorldTriangleBuffer)
+        {
+            MaterialBuffer.Add(new Material());
+        }
+    }
+
     public static void RenderTest()
     {
         ProjectWorldVertsToScreenSpace();
         GenerateScreenSpaceTriangles();
 
-        foreach (Triangle2D tri in ScreenSpaceTriangleBuffer)
+        for (int i = 0; i < ScreenSpaceTriangleBuffer.Count; i++)
         {
-            Color randomColor = Color.Random;
-
-            int[] bounds = tri.CalculatePixelScreenSpaceBounds();
+            int[] bounds = ScreenSpaceTriangleBuffer[i].CalculatePixelScreenSpaceBounds();
 
             for (int row = bounds[1]; row < bounds[3]; row++)
             {
@@ -69,9 +75,9 @@ public static class RenderManager
                 {
                     Vector2 ssPoint = new(col, row);
 
-                    if (tri.IsPointInside(ssPoint))
+                    if (ScreenSpaceTriangleBuffer[i].IsPointInside(ssPoint))
                     {
-                        WindowManager.PixelGrid[row, col] = randomColor;
+                        WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
                     }
                 }
             }
