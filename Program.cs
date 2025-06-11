@@ -11,9 +11,9 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        Model model = new("../../../models/suzanne.obj");
+        Model model = new("../../../models/rotTest.obj");
         model.Scale(new Vector3(1));
-        model.Translate(new Vector3(0, 0, 4));
+        model.Translate(new Vector3(0, 0, 3));
 
         RenderManager.MaterialTest();
 

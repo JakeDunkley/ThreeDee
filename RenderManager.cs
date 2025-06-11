@@ -13,13 +13,13 @@ public static class RenderManager
 
     public static List<Vector3> WorldVertexBuffer = new();
     public static List<Triangle3D> WorldTriangleBuffer = new();
-    public static List<Vector2> ScreenSpaceVertexBuffer = new();
-    public static List<Triangle2D> ScreenSpaceTriangleBuffer = new();
+    public static Vector3[] ScreenSpaceVertexBuffer = [];
+    public static Triangle3D[] ScreenSpaceTriangleBuffer = [];
     public static List<Material> MaterialBuffer = new();
 
     private static void ProjectWorldVertsToScreenSpace()
     {
-        ScreenSpaceVertexBuffer = new(WorldVertexBuffer.Count);
+        ScreenSpaceVertexBuffer = new Vector3[WorldVertexBuffer.Count];
 
         float xRatio = WindowManager.WindowSizeX / _ppWidth;
         float yRatio = WindowManager.WindowSizeY / _ppHeight;
@@ -27,28 +27,40 @@ public static class RenderManager
         float halfScreenWidth = 0.5f * WindowManager.WindowSizeX;
         float halfScreenHeight = 0.5f * WindowManager.WindowSizeY;
 
-        foreach (Vector3 vertex in WorldVertexBuffer)
+        Parallel.For(0, ScreenSpaceVertexBuffer.Length, i =>
         {
-            float zRatio = _ppDepth / vertex.Z;
+            float zRatio = _ppDepth / WorldVertexBuffer[i].Z;
 
-            ScreenSpaceVertexBuffer.Add(new Vector2(
-                (vertex.X * zRatio * xRatio) + halfScreenWidth,
-                (vertex.Y * zRatio * yRatio) + halfScreenHeight
-            ));
-        }
+            ScreenSpaceVertexBuffer[i] = new Vector3(
+                (WorldVertexBuffer[i].X * zRatio * xRatio) + halfScreenWidth,
+                (WorldVertexBuffer[i].Y * zRatio * yRatio) + halfScreenHeight,
+                WorldVertexBuffer[i].Z
+            );
+        });
     }
 
     private static void GenerateScreenSpaceTriangles()
     {
-        ScreenSpaceTriangleBuffer = new(WorldTriangleBuffer.Count);
+        ScreenSpaceTriangleBuffer = new Triangle3D[WorldTriangleBuffer.Count];
 
-        foreach (Triangle3D tri in WorldTriangleBuffer)
+        Parallel.For(0, ScreenSpaceTriangleBuffer.Length, i =>
         {
-            ScreenSpaceTriangleBuffer.Add(new Triangle2D(
-                tri.VertexBufferIndices.Item1,
-                tri.VertexBufferIndices.Item2,
-                tri.VertexBufferIndices.Item3
-            ));
+            ScreenSpaceTriangleBuffer[i] = new Triangle3D(
+                WorldTriangleBuffer[i].VertexBufferIndices.Item1,
+                WorldTriangleBuffer[i].VertexBufferIndices.Item2,
+                WorldTriangleBuffer[i].VertexBufferIndices.Item3
+            );
+        });
+    }
+
+    private static void ClearDepthBuffer()
+    {
+        for (int row = 0; row < DepthBuffer.GetLength(0); row++)
+        {
+            for (int col = 0; col < DepthBuffer.GetLength(1); col++)
+            {
+                DepthBuffer[row, col] = 0f;
+            }
         }
     }
 
@@ -62,25 +74,33 @@ public static class RenderManager
 
     public static void RenderTest()
     {
+        ClearDepthBuffer();
         ProjectWorldVertsToScreenSpace();
         GenerateScreenSpaceTriangles();
 
-        for (int i = 0; i < ScreenSpaceTriangleBuffer.Count; i++)
+        for (int i = 0; i < ScreenSpaceTriangleBuffer.Length; i++)
         {
             int[] bounds = ScreenSpaceTriangleBuffer[i].CalculatePixelScreenSpaceBounds();
 
-            for (int row = bounds[1]; row < bounds[3]; row++)
+            Parallel.For(bounds[1], bounds[3], row =>
             {
                 for (int col = bounds[0]; col < bounds[2]; col++)
                 {
-                    Vector2 ssPoint = new(col, row);
+                    Vector3 ssPoint = new(col, row, 0);
 
                     if (ScreenSpaceTriangleBuffer[i].IsPointInside(ssPoint))
                     {
-                        WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
+                        // WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
+                        float depthValue = ScreenSpaceTriangleBuffer[i].CalculateDepthAt(ssPoint);
+
+                        if (DepthBuffer[row, col] == 0f || DepthBuffer[row, col] > depthValue)
+                        {
+                            DepthBuffer[row, col] = depthValue;
+                            WindowManager.PixelGrid[row, col] = new(depthValue * 0.2f);
+                        }
                     }
                 }
-            }
+            });
         }
     }
 }

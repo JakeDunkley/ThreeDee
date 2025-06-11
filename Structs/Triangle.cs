@@ -6,46 +6,17 @@ public struct Triangle3D(int a, int b, int c)
 {
     public (int, int, int) VertexBufferIndices = (a, b, c);
 
-    // public readonly Triangle3D ProjectOntoProjectionPlane(float depth)
-    // {
-    //     float[] zRatios = [depth / Vertices[0].Z, depth / Vertices[1].Z, depth / Vertices[2].Z];
-
-    //     Vector3 aPrime = new(Vertices[0].X * zRatios[0], Vertices[0].Y * zRatios[0], 1f);
-    //     Vector3 bPrime = new(Vertices[1].X * zRatios[1], Vertices[1].Y * zRatios[1], 1f);
-    //     Vector3 cPrime = new(Vertices[2].X * zRatios[2], Vertices[2].Y * zRatios[2], 1f);
-
-    //     return new Triangle3D(aPrime, bPrime, cPrime);
-    // }
-
-    // public readonly Triangle2D ProjectToScreenSpace(float projectionPlaneDepth, float ppWidth, float ppHeight, float screenWidth, float screenHeight)
-    // {
-    //     float widthRatio = screenWidth / ppWidth;
-    //     float heightRatio = screenHeight / ppHeight;
-
-    //     Triangle3D ppt = ProjectOntoProjectionPlane(projectionPlaneDepth);
-    //     Vector2 aPrime = new((ppt.Vertices[0].X * widthRatio) + (0.5f * screenWidth), (ppt.Vertices[0].Y * heightRatio) + (0.5f * screenHeight));
-    //     Vector2 bPrime = new((ppt.Vertices[1].X * widthRatio) + (0.5f * screenWidth), (ppt.Vertices[1].Y * heightRatio) + (0.5f * screenHeight));
-    //     Vector2 cPrime = new((ppt.Vertices[2].X * widthRatio) + (0.5f * screenWidth), (ppt.Vertices[2].Y * heightRatio) + (0.5f * screenHeight));
-
-    //     return new Triangle2D(aPrime, bPrime, cPrime);
-    // }
-}
-
-public struct Triangle2D(int a, int b, int c)
-{
-    public (int, int, int) VertexBufferIndices = (a, b, c);
-
-    private static bool IsPointToRightOfLine(Vector2 a, Vector2 b, Vector2 point)
+    private static bool IsPointToRightOfLine(Vector3 a, Vector3 b, Vector3 point)
     {
-        Vector2 aToB = Vector2.Normalize(Vector2.Subtract(b, a));
-        Vector2 aToPoint = Vector2.Normalize(Vector2.Subtract(point, a));
+        Vector3 aToB = Vector3.Normalize(Vector3.Subtract(b, a));
+        Vector3 aToPoint = Vector3.Normalize(Vector3.Subtract(point, a));
 
-        Vector2 abNormal = new(aToB.Y, -aToB.X);
+        Vector3 abNormal = new(aToB.Y, -aToB.X, 0);
 
-        return Vector2.Dot(abNormal, aToPoint) >= 0f;
+        return Vector3.Dot(abNormal, aToPoint) > 0f;
     }
 
-    public readonly bool IsPointInside(Vector2 point)
+    public readonly bool IsPointInside(Vector3 point)
     {
         bool ab = IsPointToRightOfLine(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], point);
         bool bc = IsPointToRightOfLine(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], point);
@@ -54,18 +25,45 @@ public struct Triangle2D(int a, int b, int c)
         return !(ab || bc || ca);
     }
 
+    public static float CalculateArea(Vector3 a, Vector3 b, Vector3 c)
+    {
+        Vector3 ca = Vector3.Subtract(a, c);
+        Vector3 rotCA = new(ca.Y, -ca.X, 0);
+
+        Vector3 cb = Vector3.Subtract(b, c);
+
+        float projCoef = Vector3.Dot(rotCA, cb) / Vector3.Dot(rotCA, rotCA);
+        Vector2 proj = new(projCoef * rotCA.X, projCoef * rotCA.Y);
+
+        return 0.5f * ca.Length() * proj.Length();
+    }
+
+    public readonly float CalculateDepthAt(Vector3 point)
+    {
+        float abp = CalculateArea(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], point);
+        float bcp = CalculateArea(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], point);
+        float cap = CalculateArea(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1], point);
+
+        float sum = abp + bcp + cap;
+
+        return ((bcp * RenderManager.WorldVertexBuffer[VertexBufferIndices.Item1].Z)
+            + (cap * RenderManager.WorldVertexBuffer[VertexBufferIndices.Item2].Z)
+            + (abp * RenderManager.WorldVertexBuffer[VertexBufferIndices.Item3].Z))
+            / sum;
+    }
+
     public readonly int[] CalculatePixelScreenSpaceBounds()
     {
-        Vector2 min = Vector2.Min(
-            Vector2.Min(
+        Vector3 min = Vector3.Min(
+            Vector3.Min(
                 RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1],
                 RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2]
             ),
             RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3]
         );
 
-        Vector2 max = Vector2.Max(
-            Vector2.Max(
+        Vector3 max = Vector3.Max(
+            Vector3.Max(
                 RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1],
                 RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2]
             ),
