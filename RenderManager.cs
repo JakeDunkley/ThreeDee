@@ -55,13 +55,13 @@ public static class RenderManager
 
     private static void ClearDepthBuffer()
     {
-        for (int row = 0; row < DepthBuffer.GetLength(0); row++)
+        Parallel.For(0, DepthBuffer.GetLength(0), row =>
         {
             for (int col = 0; col < DepthBuffer.GetLength(1); col++)
             {
                 DepthBuffer[row, col] = 0f;
             }
-        }
+        });
     }
 
     public static void MaterialTest()
@@ -96,7 +96,8 @@ public static class RenderManager
                         if (DepthBuffer[row, col] == 0f || DepthBuffer[row, col] > depthValue)
                         {
                             DepthBuffer[row, col] = depthValue;
-                            WindowManager.PixelGrid[row, col] = new(depthValue * 0.2f);
+                            // WindowManager.PixelGrid[row, col] = new(depthValue * 0.2f);
+                            WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
                         }
                     }
                 }

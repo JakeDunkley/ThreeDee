@@ -11,7 +11,7 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        Model model = new("../../../models/rotTest.obj");
+        Model model = new("../../../models/ring.obj");
         model.Scale(new Vector3(1));
         model.Translate(new Vector3(0, 0, 3));
 

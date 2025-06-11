@@ -36,6 +36,11 @@ public struct Color
         RGB = new(l, l, l);
     }
 
+    public static Color operator *(float scalar, Color color)
+    {
+        return new Color(scalar * color.R, scalar * color.G, scalar * color.B);
+    }
+
     public static Color Random => new(_rng.NextSingle(), _rng.NextSingle(), _rng.NextSingle());
     public static Color Black => new(0, 0, 0);
     public static Color White => new(1, 1, 1);
