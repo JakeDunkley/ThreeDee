@@ -90,6 +90,7 @@ public static class RenderManager
                     Vector3 ssPoint = new(col, row, 0);
 
                     // WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
+                    // WindowManager.PixelGrid[row, col] = new(Thread.CurrentThread.ManagedThreadId / 64f); //MaterialBuffer[i].CalculateColorAt(ssPoint);
 
                     if (ScreenSpaceTriangleBuffer[i].IsPointInside(ssPoint))
                     {
@@ -99,8 +100,8 @@ public static class RenderManager
                         {
                             DepthBuffer[row, col] = depthValue;
                             // WindowManager.PixelGrid[row, col] = new(1f - (depthValue / 4.5f));
-                            float dCoef = (1f - ((depthValue - 1.5f) / 4.5f));
-                            WindowManager.PixelGrid[row, col] = dCoef * dCoef * MaterialBuffer[i].CalculateColorAt(ssPoint);
+                            float dCoef = (depthValue - 1.5f) / 3f;
+                            WindowManager.PixelGrid[row, col] = (1f - (dCoef)) * MaterialBuffer[i].CalculateColorAt(ssPoint);
                         }
                     }
                 }

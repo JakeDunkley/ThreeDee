@@ -36,6 +36,11 @@ public struct Color
         RGB = new(l, l, l);
     }
 
+    public static Color operator +(Color a, Color b)
+    {
+        return new Color(a.R + b.R, a.G + b.G, a.B + b.B);
+    }
+
     public static Color operator *(float scalar, Color color)
     {
         return new Color(scalar * color.R, scalar * color.G, scalar * color.B);

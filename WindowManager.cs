@@ -5,8 +5,8 @@ namespace ThreeDee;
 
 public static class WindowManager
 {
-    public const int WindowSizeX = 512;
-    public const int WindowSizeY = 512;
+    public const int WindowSizeX = 256;
+    public const int WindowSizeY = 256;
     private static readonly string _windowTitle = "ThreeDee!";
 
     public static readonly RenderWindow Window = new(new VideoMode(WindowSizeX, WindowSizeY), _windowTitle);
@@ -14,7 +14,7 @@ public static class WindowManager
     public static readonly Texture WindowTexture = new(WindowSizeX, WindowSizeY);
     public static readonly Sprite WindowSprite = new(WindowTexture);
 
-    public static readonly Structs.Color[,] PixelGrid = InitializePixelGrid();
+    public static Structs.Color[,] PixelGrid = InitializePixelGrid();
 
     public static bool WindowIsOpen => Window.IsOpen;
 
