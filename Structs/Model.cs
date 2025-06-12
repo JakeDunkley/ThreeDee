@@ -86,4 +86,56 @@ public readonly struct Model
             RenderManager.WorldVertexBuffer[vertexBufferIndex] = Vector3.Multiply(scalars, RenderManager.WorldVertexBuffer[vertexBufferIndex]);
         }
     }
+
+    public void RotateX(float degrees)
+    {
+        double theta = degrees * 0.017453293; // PI/180
+
+        float cos = (float)Math.Cos(theta);
+        float sin = (float)Math.Sin(theta);
+
+        // foreach (int index in VertexBufferIndices)
+        // {
+        //     RenderManager.WorldVertexBuffer[index] = new Vector3(
+        //         RenderManager.WorldVertexBuffer[index].X,
+        //         (cos * RenderManager.WorldVertexBuffer[index].Y) - (sin * RenderManager.WorldVertexBuffer[index].Z),
+        //         (sin * RenderManager.WorldVertexBuffer[index].Y) + (cos * RenderManager.WorldVertexBuffer[index].Z)
+        //     );
+        // }
+
+        Parallel.ForEach(VertexBufferIndices, index =>
+        {
+            RenderManager.WorldVertexBuffer[index] = new Vector3(
+                RenderManager.WorldVertexBuffer[index].X,
+                (cos * RenderManager.WorldVertexBuffer[index].Y) - (sin * RenderManager.WorldVertexBuffer[index].Z),
+                (sin * RenderManager.WorldVertexBuffer[index].Y) + (cos * RenderManager.WorldVertexBuffer[index].Z)
+            );
+        });
+    }
+
+    public void RotateY(float degrees)
+    {
+        double theta = degrees * 0.017453293; // PI/180
+
+        float cos = (float)Math.Cos(theta);
+        float sin = (float)Math.Sin(theta);
+
+        // foreach (int index in VertexBufferIndices)
+        // {
+        //     RenderManager.WorldVertexBuffer[index] = new Vector3(
+        //         (cos * RenderManager.WorldVertexBuffer[index].X) + (sin * RenderManager.WorldVertexBuffer[index].Z),
+        //         RenderManager.WorldVertexBuffer[index].Y,
+        //         (-sin * RenderManager.WorldVertexBuffer[index].X) + (cos * RenderManager.WorldVertexBuffer[index].Z)
+        //     );
+        // }
+
+        Parallel.ForEach(VertexBufferIndices, index =>
+        {
+            RenderManager.WorldVertexBuffer[index] = new Vector3(
+                (cos * RenderManager.WorldVertexBuffer[index].X) + (sin * RenderManager.WorldVertexBuffer[index].Z),
+                RenderManager.WorldVertexBuffer[index].Y,
+                (-sin * RenderManager.WorldVertexBuffer[index].X) + (cos * RenderManager.WorldVertexBuffer[index].Z)
+            );
+        });
+    }
 }

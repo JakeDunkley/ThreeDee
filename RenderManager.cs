@@ -12,6 +12,7 @@ public static class RenderManager
     public static readonly float[,] DepthBuffer = new float[WindowManager.WindowSizeY, WindowManager.WindowSizeX];
 
     public static List<Vector3> WorldVertexBuffer = new();
+    public static List<Vector3> WorldVertexTransformBuffer = new();
     public static List<Triangle3D> WorldTriangleBuffer = new();
     public static Vector3[] ScreenSpaceVertexBuffer = [];
     public static Triangle3D[] ScreenSpaceTriangleBuffer = [];
@@ -88,16 +89,18 @@ public static class RenderManager
                 {
                     Vector3 ssPoint = new(col, row, 0);
 
+                    // WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
+
                     if (ScreenSpaceTriangleBuffer[i].IsPointInside(ssPoint))
                     {
-                        // WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
                         float depthValue = ScreenSpaceTriangleBuffer[i].CalculateDepthAt(ssPoint);
 
                         if (DepthBuffer[row, col] == 0f || DepthBuffer[row, col] > depthValue)
                         {
                             DepthBuffer[row, col] = depthValue;
-                            // WindowManager.PixelGrid[row, col] = new(depthValue * 0.2f);
-                            WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
+                            // WindowManager.PixelGrid[row, col] = new(1f - (depthValue / 4.5f));
+                            float dCoef = (1f - ((depthValue - 1.5f) / 4.5f));
+                            WindowManager.PixelGrid[row, col] = dCoef * dCoef * MaterialBuffer[i].CalculateColorAt(ssPoint);
                         }
                     }
                 }
