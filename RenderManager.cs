@@ -22,11 +22,11 @@ public static class RenderManager
     {
         ScreenSpaceVertexBuffer = new Vector3[WorldVertexBuffer.Count];
 
-        float xRatio = WindowManager.WindowSizeX / _ppWidth;
-        float yRatio = WindowManager.WindowSizeY / _ppHeight;
+        float xRatio = WindowManager.RenderSizeX / _ppWidth;
+        float yRatio = WindowManager.RenderSizeY / _ppHeight;
 
-        float halfScreenWidth = 0.5f * WindowManager.WindowSizeX;
-        float halfScreenHeight = 0.5f * WindowManager.WindowSizeY;
+        float halfScreenWidth = 0.5f * WindowManager.RenderSizeX;
+        float halfScreenHeight = 0.5f * WindowManager.RenderSizeY;
 
         Parallel.For(0, ScreenSpaceVertexBuffer.Length, i =>
         {
@@ -89,8 +89,18 @@ public static class RenderManager
                 {
                     Vector3 ssPoint = new(col, row, 0);
 
-                    // WindowManager.PixelGrid[row, col] = MaterialBuffer[i].CalculateColorAt(ssPoint);
-                    // WindowManager.PixelGrid[row, col] = new(Thread.CurrentThread.ManagedThreadId / 64f); //MaterialBuffer[i].CalculateColorAt(ssPoint);
+                    // float depth = ScreenSpaceTriangleBuffer[i].CalculateDepth(ssPoint);
+
+                    // WindowManager.PixelGrid[row, col] = new((depth + 1f) / 5f);
+
+                    // if (depth >= 0f && depth < DepthBuffer[row, col])
+                    // {
+                    //     DepthBuffer[row, col] = depth;
+                    //     WindowManager.PixelGrid[row, col] = Color.Green;
+
+                    //     // float dCoef = (depth - 1.5f) / 3f;
+                    //     // WindowManager.PixelGrid[row, col] = (1f - dCoef) * MaterialBuffer[i].CalculateColorAt(ssPoint);
+                    // }
 
                     if (ScreenSpaceTriangleBuffer[i].IsPointInside(ssPoint))
                     {
@@ -99,9 +109,8 @@ public static class RenderManager
                         if (DepthBuffer[row, col] == 0f || DepthBuffer[row, col] > depthValue)
                         {
                             DepthBuffer[row, col] = depthValue;
-                            // WindowManager.PixelGrid[row, col] = new(1f - (depthValue / 4.5f));
                             float dCoef = (depthValue - 1.5f) / 3f;
-                            WindowManager.PixelGrid[row, col] = (1f - (dCoef)) * MaterialBuffer[i].CalculateColorAt(ssPoint);
+                            WindowManager.RawPixelGrid[row, col] = (1f - dCoef) * MaterialBuffer[i].CalculateColorAt(ssPoint);
                         }
                     }
                 }

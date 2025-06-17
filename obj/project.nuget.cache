@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "BHtm7nWIlaM=",
+  "dgSpecHash": "JP7j2clCH+U=",
   "success": true,
-  "projectFilePath": "c:\\MyProjects\\ThreeDee\\ThreeDee.csproj",
+  "projectFilePath": "C:\\MyProjects\\ThreeDee\\ThreeDee.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jake\\.nuget\\packages\\csfml\\2.6.1\\csfml.2.6.1.nupkg.sha512",
     "C:\\Users\\jake\\.nuget\\packages\\sfml.audio\\2.6.1\\sfml.audio.2.6.1.nupkg.sha512",

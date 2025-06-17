@@ -52,6 +52,41 @@ public struct Triangle3D(int a, int b, int c)
             / sum;
     }
 
+    public static float CalculateSignedArea(Vector3 a, Vector3 b, Vector3 c)
+    {
+        Vector3 aToB = Vector3.Subtract(b, a);
+        Vector3 aToC = Vector3.Subtract(c, a);
+
+        Vector3 rotAToC = new(-aToC.Y, aToC.X, 0);
+
+        float projCoef = Vector3.Dot(rotAToC, aToB) / Vector3.Dot(rotAToC, rotAToC);
+        float height = new Vector3(rotAToC.X * projCoef, rotAToC.Y * projCoef, 0).Length();
+
+        Vector3 rotAToB = new(aToB.Y, -aToB.X, 0);
+        int sign = float.Sign(Vector3.Dot(rotAToB, aToC));
+
+        return 0.5f * sign * rotAToC.Length() * height;
+    }
+
+    public readonly float CalculateDepth(Vector3 point)
+    {
+        float abp = CalculateSignedArea(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], point);
+        if (abp < 0f) return -1f;
+        float bcp = CalculateSignedArea(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item2], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], point);
+        if (bcp < 0f) return -1f;
+        float cap = CalculateSignedArea(RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item3], RenderManager.ScreenSpaceVertexBuffer[VertexBufferIndices.Item1], point);
+        if (cap < 0f) return -1f;
+
+        float sum = abp + bcp + cap;
+
+        return (
+            (bcp * RenderManager.WorldVertexBuffer[VertexBufferIndices.Item1].Z)
+            + (cap * RenderManager.WorldVertexBuffer[VertexBufferIndices.Item2].Z)
+            + (abp * RenderManager.WorldVertexBuffer[VertexBufferIndices.Item3].Z)
+        )
+        / sum;
+    }
+
     public readonly int[] CalculatePixelScreenSpaceBounds()
     {
         Vector3 min = Vector3.Min(
@@ -74,8 +109,8 @@ public struct Triangle3D(int a, int b, int c)
         [
             Math.Max(0, (int)Math.Floor(min.X)),
             Math.Max(0, (int)Math.Floor(min.Y)),
-            Math.Min(WindowManager.WindowSizeX - 1, (int)Math.Ceiling(max.X)),
-            Math.Min(WindowManager.WindowSizeY - 1, (int)Math.Ceiling(max.Y))
+            Math.Min(WindowManager.RenderSizeX - 1, (int)Math.Ceiling(max.X)),
+            Math.Min(WindowManager.RenderSizeY - 1, (int)Math.Ceiling(max.Y))
         ];
     }
 }

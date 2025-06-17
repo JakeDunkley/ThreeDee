@@ -36,6 +36,11 @@ public struct Color
         RGB = new(l, l, l);
     }
 
+    public readonly float Luminance()
+    {
+        return (0.2126f * R) + (0.7152f * G) + (0.0722f * B);
+    }
+
     public static Color operator +(Color a, Color b)
     {
         return new Color(a.R + b.R, a.G + b.G, a.B + b.B);
