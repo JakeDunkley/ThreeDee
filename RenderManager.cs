@@ -109,7 +109,7 @@ public static class RenderManager
                         if (DepthBuffer[row, col] == 0f || DepthBuffer[row, col] > depthValue)
                         {
                             DepthBuffer[row, col] = depthValue;
-                            float dCoef = (depthValue - 1.5f) / 3f;
+                            float dCoef = (depthValue - 3.5f) / 3f;
                             WindowManager.RawPixelGrid[row, col] = (1f - dCoef) * MaterialBuffer[i].CalculateColorAt(ssPoint);
                         }
                     }

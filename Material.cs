@@ -12,3 +12,8 @@ public class Material
         return _baseColor;
     }
 }
+
+public class TextureMaterial : Material
+{
+    
+}

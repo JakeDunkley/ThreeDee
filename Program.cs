@@ -15,9 +15,9 @@ public class Program
         // model.Scale(new Vector3(1));
         // model.RotateX(45);
 
-        Model head = new("../../../models/suzanne_head.obj");
-        Model eyeLeft = new("../../../models/suzanne_eye_left.obj");
-        Model eyeRight = new("../../../models/suzanne_eye_right.obj");
+        // Model head = new("../../../models/suzanne_head.obj");
+        Model head = new("../../../models/dragon.obj");
+        head.RotateX(30f);
 
         RenderManager.MaterialTest();
 
@@ -29,21 +29,14 @@ public class Program
             WindowManager.DispatchEvents();
             WindowManager.ClearWindow();
 
-            // model.RotateY(1f);
-            // model.Translate(new Vector3(0, 0, 4));
             head.RotateY(1f);
-            eyeLeft.RotateY(1f);
-            eyeRight.RotateY(1f);
-            head.Translate(new Vector3(0, 0, 3));
-            eyeLeft.Translate(new Vector3(0, 0, 3));
-            eyeRight.Translate(new Vector3(0, 0, 3));
+            head.Translate(new Vector3(0, 0, 1.25f));
+            // head.Translate(new Vector3(0, 0, 5));
 
             RenderManager.RenderTest();
 
-            // model.Translate(new Vector3(0, 0, -4));
-            head.Translate(new Vector3(0, 0, -3));
-            eyeLeft.Translate(new Vector3(0, 0, -3));
-            eyeRight.Translate(new Vector3(0, 0, -3));
+            head.Translate(new Vector3(0, 0, -1.25f));
+            // head.Translate(new Vector3(0, 0, -5));
 
             WindowManager.Draw();
 
