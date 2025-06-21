@@ -11,10 +11,13 @@ public class SceneObject
 {
     public Vector3[] Vertices;
     public Triangle[] Triangles;
+    public Vector2[] TextureCoordinates;
 
     public Vector3 Scale;
     public Vector3 Rotation;
     public Vector3 Translation;
+
+    public Shader Shader;
 
     public Vector3[] TransformedVertices;
     public Vector3[] ScreenSpaceVertices;
@@ -25,6 +28,7 @@ public class SceneObject
 
         List<Vector3> parsedVertices = new();
         List<Triangle> parsedTriangles = new();
+        List<Vector2> parsedTextureCoords = new();
 
         foreach (string line in lines)
         {
@@ -52,16 +56,27 @@ public class SceneObject
                     );
 
                     break;
+
+                case "vt":
+                    parsedTextureCoords.Add(new Vector2(
+                        float.Parse(splits[1]),
+                        float.Parse(splits[2])
+                    ));
+
+                    break;
             }
         }
 
         Vertices = parsedVertices.ToArray();
         Triangles = parsedTriangles.ToArray();
+        TextureCoordinates = parsedTextureCoords.ToArray();
 
         TransformedVertices = new Vector3[Vertices.Length];
         ScreenSpaceVertices = new Vector3[Vertices.Length];
 
         Scale = new Vector3(1);
+
+        Shader = new();
     }
 
     public void ScaleBy(Vector3 scaleAddition)
@@ -114,7 +129,7 @@ public class SceneObject
         }
     }
 
-    public void TransformParallel()
+    public void TransformParallel(SceneCamera camera)
     {
         Matrix4x4 rotationMatrix = Matrix4x4.Multiply(MathHelpers.RotationMatrixZ(Rotation.Z), Matrix4x4.Multiply(MathHelpers.RotationMatrixY(Rotation.Y), MathHelpers.RotationMatrixX(Rotation.X)));
 
@@ -126,13 +141,17 @@ public class SceneObject
         );
 
         Matrix4x4 translationMatrix = new(
-            1, 0, 0, Translation.X,
-            0, 1, 0, Translation.Y,
-            0, 0, 1, Translation.Z,
+            1, 0, 0, Translation.X - camera.Position.X,
+            0, 1, 0, Translation.Y - camera.Position.Y,
+            0, 0, 1, Translation.Z - camera.Position.Z,
             0, 0, 0, 1
         );
 
         Matrix4x4 transformMatrix = Matrix4x4.Multiply(translationMatrix, Matrix4x4.Multiply(scaleMatrix, rotationMatrix));
+
+        Matrix4x4 cameraRotationMatrix = Matrix4x4.Multiply(MathHelpers.RotationMatrixZ(camera.Rotation.Z), Matrix4x4.Multiply(MathHelpers.RotationMatrixY(camera.Rotation.Y), MathHelpers.RotationMatrixX(camera.Rotation.X)));
+
+        transformMatrix = Matrix4x4.Multiply(cameraRotationMatrix, transformMatrix);
 
         Parallel.For(0, Vertices.Length, i =>
         {

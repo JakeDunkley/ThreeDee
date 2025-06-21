@@ -13,12 +13,22 @@ public class Program
 
         SceneObject test = new("../../../models/cube.obj")
         {
-            // Rotation = new Vector3(30, 0, 0),
-            Translation = new Vector3(0, 0, 4)
+            Translation = new Vector3(0, 0, 3)
+        };
+
+        SceneObject cubeLeft = new("../../../models/cube.obj")
+        {
+            Translation = new Vector3(-3, 0, 3)
+        };
+        SceneObject cubeRight = new("../../../models/cube.obj")
+        {
+            Translation = new Vector3(3, 0, 3)
         };
 
         Scene scene = new();
         scene.SceneObjects.Add(test);
+        scene.SceneObjects.Add(cubeLeft);
+        scene.SceneObjects.Add(cubeRight);
 
 
         while (WindowManager.WindowIsOpen)
@@ -38,7 +48,7 @@ public class Program
             WindowManager.CheckIfShouldClose();
 
             TickManager.FrameEnd();
-            Console.WriteLine(TickManager.Debug_FrameTimeInfo());
+            // Console.WriteLine(TickManager.Debug_FrameTimeInfo());
         }
     }
 }

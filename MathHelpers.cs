@@ -68,23 +68,9 @@ public static class MathHelpers
         return Vector3.Transform(point, transformMatrix);
     }
 
-    public static bool IsPointToRightOfLine(Vector3 point, Vector3 a, Vector3 b)
+    public static bool IsInside(Vector3 weights)
     {
-        Vector3 aToB = Vector3.Normalize(Vector3.Subtract(b, a));
-        Vector3 aToPoint = Vector3.Normalize(Vector3.Subtract(point, a));
-
-        Vector3 abNormal = new(aToB.Y, -aToB.X, 0);
-
-        return Vector3.Dot(abNormal, aToPoint) > 0f;
-    }
-
-    public static bool IsPointInside(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
-    {
-        bool ab = IsPointToRightOfLine(a, b, point);
-        bool bc = IsPointToRightOfLine(b, c, point);
-        bool ca = IsPointToRightOfLine(c, a, point);
-
-        return (ab && bc && ca) || !(ab || bc || ca);
+        return weights.X >= 0f && weights.Y >= 0f && weights.Z >= 0f && Vector3.Dot(weights, weights) > 0f;
     }
 
     public static float CalculateArea(Vector3 a, Vector3 b, Vector3 c)
@@ -94,20 +80,25 @@ public static class MathHelpers
 
         Vector3 cb = Vector3.Subtract(b, c);
 
-        float projCoef = Vector3.Dot(rotCA, cb) / Vector3.Dot(rotCA, rotCA);
+        float dot = Vector3.Dot(rotCA, cb);
+        float projCoef = dot / Vector3.Dot(rotCA, rotCA);
         Vector2 proj = new(projCoef * rotCA.X, projCoef * rotCA.Y);
 
-        return 0.5f * ca.Length() * proj.Length();
+        return 0.5f * float.Sign(dot) * ca.Length() * proj.Length();
     }
 
-    public static float CalculateDepth(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
+    public static Vector3 CalculateVertexWeights(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
     {
-        float abp = CalculateArea(a, b, point);
-        float bcp = CalculateArea(b, c, point);
-        float cap = CalculateArea(c, a, point);
+        // return Vector3.Normalize(new(CalculateArea(a, b, point), CalculateArea(b, c, point), CalculateArea(c, a, point)));
+        float ab = CalculateArea(a, b, point);
+        float bc = CalculateArea(b, c, point);
+        float ca = CalculateArea(c, a, point);
 
-        float sum = abp + bcp + cap;
+        return Vector3.Divide(new(ab, bc, ca), ab + bc + ca);
+    }
 
-        return ((bcp * a.Z) + (cap * b.Z) + (abp * c.Z)) / sum;
+    public static float CalculateDepth(Vector3 weights, Vector3 a, Vector3 b, Vector3 c)
+    {
+        return 1f / Vector3.Dot(weights, new(1f / a.Z, 1f / b.Z, 1f / c.Z));
     }
 }
