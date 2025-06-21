@@ -48,7 +48,7 @@ public class Program
             WindowManager.CheckIfShouldClose();
 
             TickManager.FrameEnd();
-            // Console.WriteLine(TickManager.Debug_FrameTimeInfo());
+            Console.WriteLine(TickManager.Debug_FrameTimeInfo());
         }
     }
 }

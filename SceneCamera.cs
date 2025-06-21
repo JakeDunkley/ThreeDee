@@ -10,7 +10,7 @@ public class SceneCamera
     public int ResolutionY = 512;
     public float FOV = 90f;
     public float NearPlaneDepth = 0.01f;
-    public float FarPlaneDepth = 10f;
+    public float FarPlaneDepth = 100f;
 
     public float ProjectionPlaneWidth;
     public float WidthRatio;
@@ -60,8 +60,6 @@ public class SceneCamera
             0,
             cos
         );
-
-        Console.WriteLine($"<{BasisVectorForward.X}, {BasisVectorForward.Z}>");
     }
 
     public void CheckForInput()

@@ -76,7 +76,7 @@ public static class MathHelpers
     public static float CalculateArea(Vector3 a, Vector3 b, Vector3 c)
     {
         Vector3 ca = Vector3.Subtract(a, c);
-        Vector3 rotCA = new(ca.Y, -ca.X, 0);
+        Vector3 rotCA = new(-ca.Y, ca.X, 0);
 
         Vector3 cb = Vector3.Subtract(b, c);
 
@@ -89,10 +89,16 @@ public static class MathHelpers
 
     public static Vector3 CalculateVertexWeights(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
     {
-        // return Vector3.Normalize(new(CalculateArea(a, b, point), CalculateArea(b, c, point), CalculateArea(c, a, point)));
         float ab = CalculateArea(a, b, point);
         float bc = CalculateArea(b, c, point);
         float ca = CalculateArea(c, a, point);
+
+        float sum = ab + bc + ca;
+
+        if (sum <= 0)
+        {
+            return Vector3.Zero;
+        }
 
         return Vector3.Divide(new(ab, bc, ca), ab + bc + ca);
     }

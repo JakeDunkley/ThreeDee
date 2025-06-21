@@ -42,20 +42,8 @@ public class Scene
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
                                 Camera.ColorBuffer[row, col] = new(depth);
-
-                                // if (float.Abs(Camera.DepthBuffer[row, col] - depth) <= 0.01f)
-                                // {
-                                //     Camera.ColorBuffer[row, col] = Structs.Color.Green;
-                                // }
-
                                 Camera.DepthBuffer[row, col] = depth;
                             }
-                            // if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
-                            // {
-                            //     Camera.DepthBuffer[row, col] = depth;
-
-                            //     // Camera.ColorBuffer[row, col] = new(weights.X, weights.Y, weights.Z);
-                            // }
                         }
                     }
                 });
