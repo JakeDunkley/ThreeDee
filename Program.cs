@@ -11,15 +11,14 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        // Model model = new("../../../models/rotTest.obj");
-        // model.Scale(new Vector3(1));
-        // model.RotateX(45);
+        SceneObject test = new("../../../models/cube.obj")
+        {
+            Rotation = new Vector3(30, 0, 0),
+            Translation = new Vector3(0, 0, 5)
+        };
 
-        // Model head = new("../../../models/suzanne_head.obj");
-        Model head = new("../../../models/dragon.obj");
-        head.RotateX(30f);
-
-        RenderManager.MaterialTest();
+        Scene scene = new();
+        scene.SceneObjects.Add(test);
 
 
         while (WindowManager.WindowIsOpen)
@@ -29,16 +28,11 @@ public class Program
             WindowManager.DispatchEvents();
             WindowManager.ClearWindow();
 
-            head.RotateY(1f);
-            head.Translate(new Vector3(0, 0, 1.25f));
-            // head.Translate(new Vector3(0, 0, 5));
+            test.AddRotation(new Vector3(0, 1, 0));
 
-            RenderManager.RenderTest();
+            scene.Render();
 
-            head.Translate(new Vector3(0, 0, -1.25f));
-            // head.Translate(new Vector3(0, 0, -5));
-
-            WindowManager.Draw();
+            WindowManager.Draw(scene);
 
             WindowManager.DisplayWindow();
             WindowManager.CheckIfShouldClose();

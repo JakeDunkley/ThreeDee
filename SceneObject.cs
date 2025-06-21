@@ -19,8 +19,6 @@ public class SceneObject
     public Vector3[] TransformedVertices;
     public Vector3[] ScreenSpaceVertices;
 
-    private static readonly double DegToRadCoef = 0.01745329251; // PI/180
-
     public SceneObject(string filename)
     {
         string[] lines = File.ReadLines(filename).ToArray();
@@ -62,55 +60,42 @@ public class SceneObject
 
         TransformedVertices = new Vector3[Vertices.Length];
         ScreenSpaceVertices = new Vector3[Vertices.Length];
+
+        Scale = new Vector3(1);
     }
 
-    private static Matrix4x4 RotationMatrixX(float degrees)
+    public void ProjectToScreenSpace(SceneCamera camera)
     {
-        float cos = (float)Math.Cos(DegToRadCoef * degrees);
-        float sin = (float)Math.Sin(DegToRadCoef * degrees);
+        for (int i = 0; i < TransformedVertices.Length; i++)
+        {
+            float zRatio = (camera.FarPlaneDepth - camera.NearPlaneDepth) / TransformedVertices[i].Z;
 
-        return new Matrix4x4(
-            1, 0, 0, 0,
-            0, cos, -sin, 0,
-            0, sin, cos, 0,
-            0, 0, 0, 1
-        );
+            ScreenSpaceVertices[i] = new Vector3(
+                (TransformedVertices[i].X * zRatio * camera.WidthRatio) + (0.5f * camera.ResolutionX),
+                (TransformedVertices[i].Y * zRatio * camera.HeightRatio) + (0.5f * camera.ResolutionY),
+                (TransformedVertices[i].Z - camera.NearPlaneDepth) / (camera.FarPlaneDepth - camera.NearPlaneDepth)
+            );
+        }
     }
 
-    private static Matrix4x4 RotationMatrixY(float degrees)
+    public void AddScale(Vector3 scaleAddition)
     {
-        float cos = (float)Math.Cos(DegToRadCoef * degrees);
-        float sin = (float)Math.Sin(DegToRadCoef * degrees);
-
-        return new Matrix4x4(
-            1, 0, 0, 0,
-            0, cos, -sin, 0,
-            0, sin, cos, 0,
-            0, 0, 0, 1
-        );
+        Scale = Vector3.Add(Scale, scaleAddition);
     }
 
-    private static Matrix4x4 RotationMatrixZ(float degrees)
+    public void AddRotation(Vector3 rotationAddition)
     {
-        float cos = (float)Math.Cos(DegToRadCoef * degrees);
-        float sin = (float)Math.Sin(DegToRadCoef * degrees);
-
-        return new Matrix4x4(
-            cos, 0, sin, 0,
-            0, 1, 0, 0,
-            -sin, 0, cos, 0,
-            0, 0, 0, 1
-        );
+        Rotation = Vector3.Add(Rotation, rotationAddition);
     }
 
-    private static Vector3 RotateAboutAxis(Vector3 vertex, Matrix4x4 rot)
+    public void AddTranslation(Vector3 translationAddition)
     {
-        return Vector3.Transform(vertex, rot);
+        Translation = Vector3.Add(Translation, translationAddition);
     }
 
-    public void TransformVertices()
+    public void Transform()
     {
-        Matrix4x4 rotationMatrix = Matrix4x4.Multiply(RotationMatrixZ(Rotation.Z), Matrix4x4.Multiply(RotationMatrixY(Rotation.Y), RotationMatrixX(Rotation.X)));
+        Matrix4x4 rotationMatrix = Matrix4x4.Multiply(MathHelpers.RotationMatrixZ(Rotation.Z), Matrix4x4.Multiply(MathHelpers.RotationMatrixY(Rotation.Y), MathHelpers.RotationMatrixX(Rotation.X)));
 
         Matrix4x4 scaleMatrix = new(
             Scale.X, 0, 0, 0,
@@ -132,5 +117,18 @@ public class SceneObject
         {
             TransformedVertices[i] = Vector3.Transform(Vertices[i], transformMatrix);
         }
+    }
+
+    public int[] CalculatePixelScreenSpaceBounds(Triangle triangle, SceneCamera camera)
+    {
+        Vector3 min = Vector3.Min(Vertices[triangle.A], Vector3.Min(Vertices[triangle.B], Vertices[triangle.C]));
+        Vector3 max = Vector3.Max(Vertices[triangle.A], Vector3.Max(Vertices[triangle.B], Vertices[triangle.C]));
+
+        return [
+            Math.Max(0, (int)Math.Floor(min.X)),
+            Math.Max(0, (int)Math.Floor(min.Y)),
+            Math.Min(camera.ResolutionX - 1, (int)Math.Ceiling(max.X)),
+            Math.Min(camera.ResolutionY - 1, (int)Math.Ceiling(max.Y))
+        ];
     }
 }
