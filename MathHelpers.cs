@@ -25,9 +25,9 @@ public static class MathHelpers
         float sin = (float)Math.Sin(DegToRadCoef * degrees);
 
         return new Matrix4x4(
-            1, 0, 0, 0,
-            0, cos, -sin, 0,
-            0, sin, cos, 0,
+            cos, 0, sin, 0,
+            0, 1, 0, 0,
+            -sin, 0, cos, 0,
             0, 0, 0, 1
         );
     }
@@ -38,9 +38,9 @@ public static class MathHelpers
         float sin = (float)Math.Sin(DegToRadCoef * degrees);
 
         return new Matrix4x4(
-            cos, 0, sin, 0,
-            0, 1, 0, 0,
-            -sin, 0, cos, 0,
+            cos, -sin, 0, 0,
+            sin, cos, 0, 0,
+            0, 0, 1, 0,
             0, 0, 0, 1
         );
     }
@@ -84,7 +84,7 @@ public static class MathHelpers
         bool bc = IsPointToRightOfLine(b, c, point);
         bool ca = IsPointToRightOfLine(c, a, point);
 
-        return !(ab || bc || ca);
+        return (ab && bc && ca) || !(ab || bc || ca);
     }
 
     public static float CalculateArea(Vector3 a, Vector3 b, Vector3 c)

@@ -13,8 +13,8 @@ public class Program
 
         SceneObject test = new("../../../models/cube.obj")
         {
-            Rotation = new Vector3(30, 0, 0),
-            Translation = new Vector3(0, 0, 5)
+            // Rotation = new Vector3(30, 0, 0),
+            Translation = new Vector3(0, 0, 4)
         };
 
         Scene scene = new();
@@ -28,7 +28,7 @@ public class Program
             WindowManager.DispatchEvents();
             WindowManager.ClearWindow();
 
-            test.AddRotation(new Vector3(0, 1, 0));
+            test.RotateBy(new Vector3(0, 1, 0));
 
             scene.Render();
 

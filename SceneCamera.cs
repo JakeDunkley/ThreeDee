@@ -25,8 +25,8 @@ public class SceneCamera
     {
         ProjectionPlaneWidth = 2f * NearPlaneDepth * (float)Math.Tan(0.5f * MathHelpers.DegToRadCoef * FOV);
 
-        WidthRatio = ProjectionPlaneWidth / ResolutionX;
-        HeightRatio = ProjectionPlaneWidth / ResolutionY;
+        WidthRatio = ResolutionX / ProjectionPlaneWidth;
+        HeightRatio = ResolutionY / ProjectionPlaneWidth;
 
         DepthBuffer = new float[ResolutionX, ResolutionY];
         ColorBuffer = new Color[ResolutionX, ResolutionY];

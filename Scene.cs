@@ -27,24 +27,24 @@ public class Scene
             {
                 int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.Triangles[i], Camera);
 
-                for (int row = bounds[1]; row < bounds[2]; row++)
+                for (int row = bounds[1]; row < bounds[3]; row++)
                 {
-                    for (int col = bounds[0]; col < bounds[3]; col++)
+                    for (int col = bounds[0]; col < bounds[2]; col++)
                     {
                         Vector3 ssPoint = new(col, row, 0);
 
-                        Camera.ColorBuffer[row, col] = Structs.Color.Green;
+                        // Camera.ColorBuffer[row, col] = Structs.Color.Red;
 
-                        // if (MathHelpers.IsPointInside(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]))
-                        // {
-                        //     float depth = MathHelpers.CalculateDepth(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+                        if (MathHelpers.IsPointInside(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]))
+                        {
+                            float depth = MathHelpers.CalculateDepth(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
 
-                        //     if (Camera.DepthBuffer[row, col] == 0f || Camera.DepthBuffer[row, col] > depth)
-                        //     {
-                        //         Camera.DepthBuffer[row, col] = depth;
-                        //         Camera.ColorBuffer[row, col] = Structs.Color.Green;
-                        //     }
-                        // }
+                            if (Camera.DepthBuffer[row, col] == 0f || Camera.DepthBuffer[row, col] > depth)
+                            {
+                                Camera.DepthBuffer[row, col] = depth;
+                                Camera.ColorBuffer[row, col] = (1f - depth) * Structs.Color.Green;
+                            }
+                        }
                     }
                 }
             }
