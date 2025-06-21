@@ -5,8 +5,8 @@ namespace ThreeDee;
 
 public class SceneCamera
 {
-    public int ResolutionX = 512;
-    public int ResolutionY = 512;
+    public int ResolutionX = 256;
+    public int ResolutionY = 256;
     public float FOV = 90f;
     public float NearPlaneDepth = 1f;
     public float FarPlaneDepth = 10f;

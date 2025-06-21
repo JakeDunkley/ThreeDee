@@ -50,4 +50,41 @@ public class Scene
             }
         }
     }
+
+    public void RenderParallel()
+    {
+        Camera.ClearBuffers();
+
+        foreach (SceneObject obj in SceneObjects)
+        {
+            obj.TransformParallel();
+            obj.ProjectToScreenSpaceParallel(Camera);
+
+            for (int i = 0; i < obj.Triangles.Length; i++)
+            {
+                int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.Triangles[i], Camera);
+                
+                Parallel.For(bounds[1], bounds[3], row =>
+                {
+                    for (int col = bounds[0]; col < bounds[2]; col++)
+                    {
+                        Vector3 ssPoint = new(col, row, 0);
+
+                        // Camera.ColorBuffer[row, col] = Structs.Color.Red;
+
+                        if (MathHelpers.IsPointInside(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]))
+                        {
+                            float depth = MathHelpers.CalculateDepth(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+
+                            if (Camera.DepthBuffer[row, col] == 0f || Camera.DepthBuffer[row, col] > depth)
+                            {
+                                Camera.DepthBuffer[row, col] = depth;
+                                Camera.ColorBuffer[row, col] = (1f - depth) * Structs.Color.Green;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
 }

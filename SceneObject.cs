@@ -114,6 +114,41 @@ public class SceneObject
         }
     }
 
+    public void TransformParallel()
+    {
+        Matrix4x4 rotationMatrix = Matrix4x4.Multiply(MathHelpers.RotationMatrixZ(Rotation.Z), Matrix4x4.Multiply(MathHelpers.RotationMatrixY(Rotation.Y), MathHelpers.RotationMatrixX(Rotation.X)));
+
+        Matrix4x4 scaleMatrix = new(
+            Scale.X, 0, 0, 0,
+            0, Scale.Y, 0, 0,
+            0, 0, Scale.Z, 0,
+            0, 0, 0, 1
+        );
+
+        Matrix4x4 translationMatrix = new(
+            1, 0, 0, Translation.X,
+            0, 1, 0, Translation.Y,
+            0, 0, 1, Translation.Z,
+            0, 0, 0, 1
+        );
+
+        Matrix4x4 transformMatrix = Matrix4x4.Multiply(translationMatrix, Matrix4x4.Multiply(scaleMatrix, rotationMatrix));
+
+        Parallel.For(0, Vertices.Length, i =>
+        {
+            Matrix4x4 vertexMatrix = new(
+                Vertices[i].X, 0, 0, 0,
+                Vertices[i].Y, 0, 0, 0,
+                Vertices[i].Z, 0, 0, 0,
+                1, 0, 0, 0
+            );
+
+            Matrix4x4 transformedVertexMatrix = Matrix4x4.Multiply(transformMatrix, vertexMatrix);
+
+            TransformedVertices[i] = new Vector3(transformedVertexMatrix.M11, transformedVertexMatrix.M21, transformedVertexMatrix.M31);
+        });
+    }
+
     public void ProjectToScreenSpace(SceneCamera camera)
     {
         float halfResX = 0.5f * camera.ResolutionX;
@@ -129,6 +164,23 @@ public class SceneObject
                 (TransformedVertices[i].Z - camera.NearPlaneDepth) / (camera.FarPlaneDepth - camera.NearPlaneDepth)
             );
         }
+    }
+
+    public void ProjectToScreenSpaceParallel(SceneCamera camera)
+    {
+        float halfResX = 0.5f * camera.ResolutionX;
+        float halfResY = 0.5f * camera.ResolutionY;
+
+        Parallel.For(0, TransformedVertices.Length, i =>
+        {
+            float zRatio = camera.NearPlaneDepth / TransformedVertices[i].Z;
+
+            ScreenSpaceVertices[i] = new Vector3(
+                (TransformedVertices[i].X * camera.WidthRatio * zRatio) + halfResX,
+                (TransformedVertices[i].Y * camera.HeightRatio * zRatio) + halfResY,
+                (TransformedVertices[i].Z - camera.NearPlaneDepth) / (camera.FarPlaneDepth - camera.NearPlaneDepth)
+            );
+        });
     }
 
     public int[] CalculatePixelScreenSpaceBounds(Triangle triangle, SceneCamera camera)

@@ -30,9 +30,9 @@ public class Program
 
             test.RotateBy(new Vector3(0, 1, 0));
 
-            scene.Render();
+            scene.RenderParallel();
 
-            WindowManager.Draw(scene);
+            WindowManager.DrawParallel(scene);
 
             WindowManager.DisplayWindow();
             WindowManager.CheckIfShouldClose();
