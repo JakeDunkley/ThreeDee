@@ -11,7 +11,7 @@ public class SceneObject
 {
     public Vector3[] Vertices;
     public Triangle[] Triangles;
-    public Vector2[] TextureCoordinates;
+    public Vector2[] UVCoordinates;
 
     public Vector3 Scale;
     public Vector3 Rotation;
@@ -28,7 +28,7 @@ public class SceneObject
 
         List<Vector3> parsedVertices = new();
         List<Triangle> parsedTriangles = new();
-        List<Vector2> parsedTextureCoords = new();
+        List<Vector2> parsedUVCoordinates = new();
 
         foreach (string line in lines)
         {
@@ -58,7 +58,7 @@ public class SceneObject
                     break;
 
                 case "vt":
-                    parsedTextureCoords.Add(new Vector2(
+                    parsedUVCoordinates.Add(new Vector2(
                         float.Parse(splits[1]),
                         float.Parse(splits[2])
                     ));
@@ -69,7 +69,7 @@ public class SceneObject
 
         Vertices = parsedVertices.ToArray();
         Triangles = parsedTriangles.ToArray();
-        TextureCoordinates = parsedTextureCoords.ToArray();
+        UVCoordinates = parsedUVCoordinates.ToArray();
 
         TransformedVertices = new Vector3[Vertices.Length];
         ScreenSpaceVertices = new Vector3[Vertices.Length];

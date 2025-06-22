@@ -13,22 +13,19 @@ public class Program
 
         SceneObject test = new("../../../models/cube.obj")
         {
-            Translation = new Vector3(0, 0, 3)
+            Translation = new(0, 0, 3),
+            Shader = new TextureShader("../../../textures/color_grid.png")
         };
 
-        SceneObject cubeLeft = new("../../../models/cube.obj")
+        SceneObject suzanne = new("../../../models/suzanne_head.obj")
         {
-            Translation = new Vector3(-3, 0, 3)
+            Translation = new(3, 0, 3)
         };
-        SceneObject cubeRight = new("../../../models/cube.obj")
-        {
-            Translation = new Vector3(3, 0, 3)
-        };
+        
 
         Scene scene = new();
         scene.SceneObjects.Add(test);
-        scene.SceneObjects.Add(cubeLeft);
-        scene.SceneObjects.Add(cubeRight);
+        scene.SceneObjects.Add(suzanne);
 
 
         while (WindowManager.WindowIsOpen)
@@ -36,9 +33,9 @@ public class Program
             TickManager.FrameStart();
 
             WindowManager.DispatchEvents();
-            WindowManager.ClearWindow();
+            // WindowManager.ClearWindow();
 
-            test.RotateBy(new Vector3(0, 1, 0));
+            test.RotateBy(new Vector3(0, 10f * (float)TickManager.TickDelta, 0));
 
             scene.RenderParallel();
 

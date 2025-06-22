@@ -2,8 +2,8 @@ namespace ThreeDee;
 
 public static class TickManager
 {
-    public const int MicrosecondsPerTick = 1000;
-    public const int TicksPerSecond = 1000000 / MicrosecondsPerTick;
+    public const int TicksPerSecond = 1000;
+    public const long MicrosecondsPerTick = 1000000 / TicksPerSecond;
     public const double InverseTickRate = 1.0 / TicksPerSecond;
 
     private static readonly SFML.System.Clock _clock = new();

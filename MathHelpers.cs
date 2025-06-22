@@ -100,7 +100,7 @@ public static class MathHelpers
             return Vector3.Zero;
         }
 
-        return Vector3.Divide(new(ab, bc, ca), ab + bc + ca);
+        return Vector3.Divide(new(bc, ca, ab), ab + bc + ca);
     }
 
     public static float CalculateDepth(Vector3 weights, Vector3 a, Vector3 b, Vector3 c)

@@ -11,6 +11,7 @@ public class SceneCamera
     public float FOV = 90f;
     public float NearPlaneDepth = 0.01f;
     public float FarPlaneDepth = 100f;
+    public bool IsDebugRender = false;
 
     public float ProjectionPlaneWidth;
     public float WidthRatio;
@@ -53,8 +54,6 @@ public class SceneCamera
         float cos = (float)Math.Cos(-MathHelpers.DegToRadCoef * Rotation.Y);
         float sin = (float)Math.Sin(-MathHelpers.DegToRadCoef * Rotation.Y);
 
-        Console.WriteLine(Rotation.Y);
-
         BasisVectorForward = new(
             sin,
             0,
@@ -96,6 +95,11 @@ public class SceneCamera
             Rotation = Vector3.Add(Rotation, new Vector3(0, -4f, 0));
 
             UpdateBasisVectorForward();
+        }
+
+        if (Keyboard.IsKeyPressed(Keyboard.Key.B))
+        {
+            IsDebugRender = !IsDebugRender;
         }
     }
 }
