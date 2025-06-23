@@ -23,7 +23,7 @@ public struct Color
 
     public Color(int r, int g, int b)
     {
-        RGB = new(r, g, b);
+        RGB = new(r / 255f, g / 255f, b / 255f);
     }
 
     public Color(double r, double g, double b)
@@ -58,11 +58,11 @@ public struct Color
 
     public static Color Random => new(_rng.NextSingle(), _rng.NextSingle(), _rng.NextSingle());
     public static Color Black => new(0, 0, 0);
-    public static Color White => new(1, 1, 1);
-    public static Color Red => new(1, 0, 0);
-    public static Color Green => new(0, 1, 0);
-    public static Color Blue => new(0, 0, 1);
-    public static Color Cyan => new(0, 1, 1);
-    public static Color Magenta => new(1, 0, 1);
-    public static Color Yellow => new(1, 1, 0);
+    public static Color White => new(1f, 1f, 1f);
+    public static Color Red => new(1f, 0, 0);
+    public static Color Green => new(0, 1f, 0);
+    public static Color Blue => new(0, 0, 1f);
+    public static Color Cyan => new(0, 1f, 1f);
+    public static Color Magenta => new(1f, 0, 1f);
+    public static Color Yellow => new(1f, 1f, 0);
 }

@@ -55,7 +55,10 @@ public class Scene
 
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
-                                Camera.ColorBuffer[row, col] = obj.Shader.ComputeAt(depth, weights, i, obj);
+                                Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
+                                float normalizedNormal = 0.5f * (normal.Y + 1f);
+                                
+                                Camera.ColorBuffer[row, col] = normalizedNormal * obj.Shader.ComputeAt(depth, weights, i, obj);
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }
@@ -74,6 +77,11 @@ public class Scene
 
             for (int i = 0; i < obj.Triangles.Length; i++)
             {
+                if (MathHelpers.IsTriangleClippingFrustum(obj.Triangles[i], obj, Camera))
+                {
+                    continue;
+                }
+
                 int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.Triangles[i], Camera);
 
                 Parallel.For(bounds[1], bounds[3], row =>
@@ -87,12 +95,12 @@ public class Scene
                         if (MathHelpers.IsInside(weights))
                         {
                             float depth = MathHelpers.CalculateDepth(weights, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
-                            Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
 
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
-                                Structs.Color normalColor = 0.5f * (new Structs.Color(normal.X, normal.Y, normal.Z) + 1f);
-                                Camera.ColorBuffer[row, col] = normalColor;
+                                Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
+
+                                Camera.ColorBuffer[row, col] = 0.5f * (new Structs.Color(normal.X, normal.Y, normal.Z) + 1f);
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }

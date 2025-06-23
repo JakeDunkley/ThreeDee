@@ -110,6 +110,42 @@ public static class MathHelpers
 
     public static Vector3 CalculateNormalSmooth(Vector3 weights, Triangle triangle, SceneObject sceneObject)
     {
-        return (weights[0] * sceneObject.Normals[triangle.A]) + (weights[1] * sceneObject.Normals[triangle.B]) + (weights[2] * sceneObject.Normals[triangle.C]);
+        Vector3[] normals = [
+            sceneObject.TransformedNormals[triangle.nA],
+            sceneObject.TransformedNormals[triangle.nB],
+            sceneObject.TransformedNormals[triangle.nC]
+        ];
+
+        return (weights[0] * normals[0]) + (weights[1] * normals[1]) + (weights[2] * normals[2]);
+    }
+
+    public static bool IsVertexOutsideFrustum(Vector3 vertex, SceneCamera camera)
+    {
+        return (
+            vertex.X < 0
+            || vertex.X > camera.ResolutionX
+            || vertex.Y < 0
+            || vertex.Y > camera.ResolutionY
+            || vertex.Z < float.Epsilon
+            || vertex.Z > 1f
+        );
+    }
+
+    /// <summary>
+    /// Checks if a triangle is clipping frustum or is completely out of bounds.
+    /// Will return true only if triangle is completely out of bounds.
+    /// Splits the triangle up if clipping frustum.
+    /// </summary>
+    /// <param name="triangle"></param>
+    /// <param name="sceneObject"></param>
+    /// <param name="camera"></param>
+    /// <returns></returns>
+    public static bool IsTriangleClippingFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        bool oobA = IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.A], camera);
+        bool oobB = IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.B], camera);
+        bool oobC = IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.C], camera);
+
+        return oobA || oobB || oobC;
     }
 }

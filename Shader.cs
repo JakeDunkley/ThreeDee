@@ -8,7 +8,7 @@ public class Shader
 {
     public virtual Structs.Color ComputeAt(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
     {
-        return (1f - float.Pow(depth, 0.125f)) * Structs.Color.Magenta;
+        return Structs.Color.Magenta;
     }
 }
 
@@ -56,9 +56,9 @@ public class TextureShader : Shader
         SFML.Graphics.Color color = Texture.GetPixel(textureCoordX, textureCoordY);
 
         return new Structs.Color(
-            255 - color.R,
-            255 - color.G,
-            255 - color.B
+            color.R,
+            color.G,
+            color.B
         );
     }
 

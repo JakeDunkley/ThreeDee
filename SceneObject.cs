@@ -6,6 +6,7 @@ public struct Triangle
 {
     public int A, B, C;
     public int uvA, uvB, uvC;
+    public int nA, nB, nC;
 }
 
 public class SceneObject
@@ -22,6 +23,7 @@ public class SceneObject
     public Shader Shader;
 
     public Vector3[] TransformedVertices;
+    public Vector3[] TransformedNormals;
     public Vector3[] ScreenSpaceVertices;
 
     public SceneObject(string filename)
@@ -79,6 +81,9 @@ public class SceneObject
                             uvA = int.Parse(v1Splits[1]) - 1,
                             uvB = int.Parse(v2Splits[1]) - 1,
                             uvC = int.Parse(v3Splits[1]) - 1,
+                            nA = int.Parse(v1Splits[2]) - 1,
+                            nB = int.Parse(v2Splits[2]) - 1,
+                            nC = int.Parse(v3Splits[2]) - 1,
                         }
                     );
 
@@ -92,6 +97,7 @@ public class SceneObject
         Normals = parsedNormals.ToArray();
 
         TransformedVertices = new Vector3[Vertices.Length];
+        TransformedNormals = new Vector3[Vertices.Length];
         ScreenSpaceVertices = new Vector3[Vertices.Length];
 
         Scale = new Vector3(1);
@@ -173,6 +179,8 @@ public class SceneObject
 
         transformMatrix = Matrix4x4.Multiply(cameraRotationMatrix, transformMatrix);
 
+        Matrix4x4 normalRotationMatrix = Matrix4x4.Multiply(cameraRotationMatrix, rotationMatrix);
+
         Parallel.For(0, Vertices.Length, i =>
         {
             Matrix4x4 vertexMatrix = new(
@@ -185,6 +193,20 @@ public class SceneObject
             Matrix4x4 transformedVertexMatrix = Matrix4x4.Multiply(transformMatrix, vertexMatrix);
 
             TransformedVertices[i] = new Vector3(transformedVertexMatrix.M11, transformedVertexMatrix.M21, transformedVertexMatrix.M31);
+        });
+
+        Parallel.For(0, Normals.Length, i =>
+        {
+            Matrix4x4 normalMatrix = new(
+                Normals[i].X, 0, 0, 0,
+                Normals[i].Y, 0, 0, 0,
+                Normals[i].Z, 0, 0, 0,
+                1, 0, 0, 0
+            );
+
+            Matrix4x4 transformedNormalMatrix = Matrix4x4.Multiply(normalRotationMatrix, normalMatrix);
+
+            TransformedNormals[i] = new Vector3(transformedNormalMatrix.M11, transformedNormalMatrix.M21, transformedNormalMatrix.M31);
         });
     }
 
