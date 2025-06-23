@@ -12,6 +12,16 @@ public class Shader
     }
 }
 
+public class RandomTriColorShader : Shader
+{
+    public override Structs.Color ComputeAt(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
+    {
+        Structs.Color[] colors = [Structs.Color.Red, Structs.Color.Yellow, Structs.Color.Green, Structs.Color.Cyan, Structs.Color.Blue];
+
+        return (1f - depth) * colors[triangleIndex % colors.Length];
+    }
+}
+
 public class TextureShader : Shader
 {
     public Image Texture;
@@ -23,21 +33,27 @@ public class TextureShader : Shader
 
     public override Structs.Color ComputeAt(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
     {
-        Vector2[] textureCoords = [
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].A],
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].B],
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].C]
+        Vector2[] uvCoords = [
+            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].uvA],
+            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].uvB],
+            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].uvC]
         ];
 
-        Vector2 uv = depth *
-            ((vertexWeights[0] * (textureCoords[0] / sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].A].Z))
-            + (vertexWeights[1] * (textureCoords[1] / sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].B].Z))
-            + (vertexWeights[2] * (textureCoords[2] / sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].C].Z)));
+        float[] depths = [
+            sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].A].Z,
+            sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].B].Z,
+            sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].C].Z
+        ];
 
-        uint uvx = uint.Min(Texture.Size.X - 1, uint.Max(0, (uint)(uv.X * Texture.Size.X)));
-        uint uvy = uint.Min(Texture.Size.Y - 1, uint.Max(0, (uint)(uv.Y * Texture.Size.Y)));
+        Vector2 uv = vertexWeights[0] * uvCoords[0] / depths[0];
+        uv += vertexWeights[1] * uvCoords[1] / depths[1];
+        uv += vertexWeights[2] * uvCoords[2] / depths[2];
+        uv *= depth;
 
-        SFML.Graphics.Color color = Texture.GetPixel(uvx, uvy);
+        uint textureCoordX = (uint)(uv.X * Texture.Size.X) % (Texture.Size.X - 1);
+        uint textureCoordY = (uint)(uv.Y * Texture.Size.Y) % (Texture.Size.Y - 1);
+
+        SFML.Graphics.Color color = Texture.GetPixel(textureCoordX, textureCoordY);
 
         return new Structs.Color(
             255 - color.R,
@@ -48,19 +64,6 @@ public class TextureShader : Shader
 
     public Structs.Color ComputeAt_Debug(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
     {
-        Vector2[] textureCoords = [
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].A],
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].B],
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].C]
-        ];
-
-        Vector2 uv = depth *
-        ((vertexWeights[0] * (textureCoords[0] / sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].A].Z))
-        + (vertexWeights[1] * (textureCoords[1] / sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].B].Z))
-        + (vertexWeights[2] * (textureCoords[2] / sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].C].Z)));
-
-        // return new Structs.Color(uv.X, uv.Y, 0);
-
-        return new Structs.Color((float)triangleIndex / (sceneObject.Triangles.Length - 1));
+        return Structs.Color.Green;
     }
 }

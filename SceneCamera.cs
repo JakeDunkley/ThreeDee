@@ -31,8 +31,8 @@ public class SceneCamera
         WidthRatio = ResolutionX / ProjectionPlaneWidth;
         HeightRatio = ResolutionY / ProjectionPlaneWidth;
 
-        DepthBuffer = new float[ResolutionX, ResolutionY];
-        ColorBuffer = new Color[ResolutionX, ResolutionY];
+        DepthBuffer = new float[ResolutionY, ResolutionX];
+        ColorBuffer = new Color[ResolutionY, ResolutionX];
 
         BasisVectorForward = new(0, 0, 1);
     }
@@ -49,7 +49,7 @@ public class SceneCamera
         }
     }
 
-    public void UpdateBasisVectorForward()
+    private void UpdateBasisVectorForward()
     {
         float cos = (float)Math.Cos(-MathHelpers.DegToRadCoef * Rotation.Y);
         float sin = (float)Math.Sin(-MathHelpers.DegToRadCoef * Rotation.Y);
@@ -61,43 +61,63 @@ public class SceneCamera
         );
     }
 
+    private void UpdateFOV()
+    {
+        ProjectionPlaneWidth = 2f * NearPlaneDepth * (float)Math.Tan(0.5f * MathHelpers.DegToRadCoef * FOV);
+
+        WidthRatio = ResolutionX / ProjectionPlaneWidth;
+        HeightRatio = ResolutionY / ProjectionPlaneWidth;
+    }
+
     public void CheckForInput()
     {
-        if (Keyboard.IsKeyPressed(Keyboard.Key.W))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.W])
         {
-            Position = Vector3.Add(Position, BasisVectorForward);
+            Position += (float)TickManager.Delta * 4f * BasisVectorForward;
         }
 
-        if (Keyboard.IsKeyPressed(Keyboard.Key.S))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.S])
         {
-            Position = Vector3.Subtract(Position, BasisVectorForward);
+            Position -= (float)TickManager.Delta * 4f * BasisVectorForward;
         }
 
-        if (Keyboard.IsKeyPressed(Keyboard.Key.A))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.A])
         {
-            Position = Vector3.Add(Position, new(-BasisVectorForward.Z, 0, BasisVectorForward.X));
+            Position += (float)TickManager.Delta * 4f * new Vector3(-BasisVectorForward.Z, 0, BasisVectorForward.X);
         }
 
-        if (Keyboard.IsKeyPressed(Keyboard.Key.D))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.D])
         {
-            Position = Vector3.Subtract(Position, new(-BasisVectorForward.Z, 0, BasisVectorForward.X));
+            Position -= (float)TickManager.Delta * 4f * new Vector3(-BasisVectorForward.Z, 0, BasisVectorForward.X);
         }
 
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.Left])
         {
-            Rotation = Vector3.Add(Rotation, new Vector3(0, 4f, 0));
+            Rotation += (float)TickManager.Delta * new Vector3(0, 90, 0);
 
             UpdateBasisVectorForward();
         }
 
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.Right])
         {
-            Rotation = Vector3.Add(Rotation, new Vector3(0, -4f, 0));
+            Rotation += (float)TickManager.Delta * new Vector3(0, -90, 0);
 
             UpdateBasisVectorForward();
         }
 
-        if (Keyboard.IsKeyPressed(Keyboard.Key.B))
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.O])
+        {
+            FOV -= 20f * (float)TickManager.Delta;
+            UpdateFOV();
+        }
+
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.P])
+        {
+            FOV += 20f * (float)TickManager.Delta;
+            UpdateFOV();
+        }
+
+        if (InputManager.IsKeyImpulseThisFrame[Keyboard.Key.B])
         {
             IsDebugRender = !IsDebugRender;
         }

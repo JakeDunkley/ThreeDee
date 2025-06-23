@@ -13,16 +13,18 @@ public static class TickManager
     private static long _microsecondsElapsed = 0;
     private static long _microsecondsThisFrame = 0;
     private static long _microsecondsOverLastFrame = 0;
+    private static double _delta = 0.0;
 
     public static int TicksElapsed => _ticksElapsed;
     public static int TicksThisFrame => _ticksThisFrame;
-    public static double TickDelta => _ticksThisFrame * InverseTickRate;
+    public static double Delta => _delta;
+    public static double CurrentFrameTickDelta => _ticksThisFrame * InverseTickRate;
     public static long MicrosecondsElapsed => _microsecondsElapsed;
     public static double SecondsElapse => _microsecondsElapsed * 0.000001;
 
-    public static string Debug_FrameTimeInfo()
+    public static string FrameTimeInfo()
     {
-        return $"{(_microsecondsThisFrame * 0.001f):F2}ms - {_ticksThisFrame} ticks";
+        return $"{_microsecondsThisFrame * 0.001f:F2}ms - {_ticksThisFrame} ticks";
     }
 
     public static void FrameStart()
@@ -47,5 +49,6 @@ public static class TickManager
         }
 
         _ticksElapsed += _ticksThisFrame;
+        _delta = CurrentFrameTickDelta;
     }
 }

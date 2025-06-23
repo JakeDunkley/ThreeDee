@@ -5,6 +5,7 @@ namespace ThreeDee;
 public struct Triangle
 {
     public int A, B, C;
+    public int uvA, uvB, uvC;
 }
 
 public class SceneObject
@@ -44,24 +45,31 @@ public class SceneObject
                     ));
 
                     break;
-
-                case "f":
-                    parsedTriangles.Add(
-                        new Triangle
-                        {
-                            A = int.Parse(splits[1].Split('/')[0]) - 1,
-                            B = int.Parse(splits[2].Split('/')[0]) - 1,
-                            C = int.Parse(splits[3].Split('/')[0]) - 1
-                        }
-                    );
-
-                    break;
-
+                
                 case "vt":
                     parsedUVCoordinates.Add(new Vector2(
                         float.Parse(splits[1]),
-                        float.Parse(splits[2])
+                        1f - float.Parse(splits[2])
                     ));
+
+                    break;
+
+                case "f":
+                    string[] v1Splits = splits[1].Split('/');
+                    string[] v2Splits = splits[2].Split('/');
+                    string[] v3Splits = splits[3].Split('/');
+
+                    parsedTriangles.Add(
+                        new Triangle
+                        {
+                            A = int.Parse(v1Splits[0]) - 1,
+                            B = int.Parse(v2Splits[0]) - 1,
+                            C = int.Parse(v3Splits[0]) - 1,
+                            uvA = int.Parse(v1Splits[1]) - 1,
+                            uvB = int.Parse(v2Splits[1]) - 1,
+                            uvC = int.Parse(v3Splits[1]) - 1,
+                        }
+                    );
 
                     break;
             }
@@ -81,17 +89,17 @@ public class SceneObject
 
     public void ScaleBy(Vector3 scaleAddition)
     {
-        Scale = Vector3.Add(Scale, scaleAddition);
+        Scale += scaleAddition;
     }
 
     public void RotateBy(Vector3 rotationAddition)
     {
-        Rotation = Vector3.Add(Rotation, rotationAddition);
+        Rotation += rotationAddition;
     }
 
     public void TranslateBy(Vector3 translationAddition)
     {
-        Translation = Vector3.Add(Translation, translationAddition);
+        Translation += translationAddition;
     }
 
     public void Transform()

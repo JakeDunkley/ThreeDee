@@ -13,11 +13,11 @@ public static class WindowManager
     public static readonly RenderStates RenderStates = new();
     public static readonly Texture WindowTexture = new(WindowX, WindowY);
     public static readonly Sprite WindowSprite = new(WindowTexture);
-    public static Structs.Color[,] ColorBuffer = new Structs.Color[WindowX, WindowY];
+    public static readonly Structs.Color[,] ColorBuffer = new Structs.Color[WindowX, WindowY];
 
     public static bool WindowIsOpen => Window.IsOpen;
 
-    public static void ClearWindow()
+    public static void InducePain()
     {
         for (int row = 0; row < WindowY; row++)
         {
@@ -49,11 +49,17 @@ public static class WindowManager
         Window.DispatchEvents();
     }
 
-    public static void CheckIfShouldClose()
+    public static void CheckForInput()
     {
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Escape))
+        if (InputManager.IsKeyImpulseThisFrame[Keyboard.Key.Escape])
         {
             Window.Close();
+        }
+
+        if (InputManager.IsKeyImpulseThisFrame[Keyboard.Key.P])
+        {
+            Image capture = WindowTexture.CopyToImage();
+            capture.SaveToFile($"../../../out/capture_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")}.png");
         }
     }
     private static void UpscaleNN(Structs.Color[,] rawColorBuffer)

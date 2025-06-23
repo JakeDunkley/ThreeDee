@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SFML.Graphics;
 using ThreeDee.Structs;
 
 namespace ThreeDee;
@@ -11,41 +12,45 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        SceneObject test = new("../../../models/cube.obj")
+        SceneObject cube = new("../../../models/cube.obj")
         {
             Translation = new(0, 0, 3),
-            Shader = new TextureShader("../../../textures/color_grid.png")
+            Shader = new TextureShader("../../../textures/colorGrid.png")
         };
 
         SceneObject suzanne = new("../../../models/suzanne_head.obj")
         {
-            Translation = new(3, 0, 3)
+            Translation = new(3, 0, 3),
+            Shader = new RandomTriColorShader()
         };
-        
+
+        Text debugText = OverlayManager.CreateAndAddOverlayTextObject("");
+        debugText.Scale = new(0.5f, 0.5f);
 
         Scene scene = new();
-        scene.SceneObjects.Add(test);
+        scene.SceneObjects.Add(cube);
         scene.SceneObjects.Add(suzanne);
-
 
         while (WindowManager.WindowIsOpen)
         {
             TickManager.FrameStart();
 
             WindowManager.DispatchEvents();
-            // WindowManager.ClearWindow();
+            InputManager.PollInput();
+            // WindowManager.InducePain();
 
-            test.RotateBy(new Vector3(0, 10f * (float)TickManager.TickDelta, 0));
+            cube.RotateBy(new Vector3(0, (float)(90.0 * TickManager.Delta), 0));
 
             scene.RenderParallel();
 
             WindowManager.DrawParallel(scene);
+            OverlayManager.DrawOverlay();
 
             WindowManager.DisplayWindow();
-            WindowManager.CheckIfShouldClose();
+            WindowManager.CheckForInput();
 
             TickManager.FrameEnd();
-            Console.WriteLine(TickManager.Debug_FrameTimeInfo());
+            debugText.DisplayedString = TickManager.FrameTimeInfo();
         }
     }
 }
