@@ -51,6 +51,11 @@ public struct Color
         return new Color(scalar * color.R, scalar * color.G, scalar * color.B);
     }
 
+    public static Color operator +(Color color, float addition)
+    {
+        return new Color(color.R + addition, color.G + addition, color.B + addition);
+    }
+
     public static Color Random => new(_rng.NextSingle(), _rng.NextSingle(), _rng.NextSingle());
     public static Color Black => new(0, 0, 0);
     public static Color White => new(1, 1, 1);

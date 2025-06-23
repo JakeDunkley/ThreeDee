@@ -18,7 +18,7 @@ public class Program
             Shader = new TextureShader("../../../textures/colorGrid.png")
         };
 
-        SceneObject suzanne = new("../../../models/suzanne_head.obj")
+        SceneObject suzanne = new("../../../models/suzanne.obj")
         {
             Translation = new(3, 0, 3),
             Shader = new RandomTriColorShader()

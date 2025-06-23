@@ -59,7 +59,7 @@ public static class WindowManager
         if (InputManager.IsKeyImpulseThisFrame[Keyboard.Key.P])
         {
             Image capture = WindowTexture.CopyToImage();
-            capture.SaveToFile($"../../../out/capture_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")}.png");
+            capture.SaveToFile($"../../../out/capture_{DateTime.Now:yyyy-MM-dd_HH.mm.ss}.png");
         }
     }
     private static void UpscaleNN(Structs.Color[,] rawColorBuffer)

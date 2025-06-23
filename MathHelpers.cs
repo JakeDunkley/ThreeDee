@@ -107,4 +107,9 @@ public static class MathHelpers
     {
         return 1f / Vector3.Dot(weights, new(1f / a.Z, 1f / b.Z, 1f / c.Z));
     }
+
+    public static Vector3 CalculateNormalSmooth(Vector3 weights, Triangle triangle, SceneObject sceneObject)
+    {
+        return (weights[0] * sceneObject.Normals[triangle.A]) + (weights[1] * sceneObject.Normals[triangle.B]) + (weights[2] * sceneObject.Normals[triangle.C]);
+    }
 }

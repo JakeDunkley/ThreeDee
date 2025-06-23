@@ -87,10 +87,12 @@ public class Scene
                         if (MathHelpers.IsInside(weights))
                         {
                             float depth = MathHelpers.CalculateDepth(weights, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+                            Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
 
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
-                                Camera.ColorBuffer[row, col] = new(weights.X, weights.Y, weights.Z);
+                                Structs.Color normalColor = 0.5f * (new Structs.Color(normal.X, normal.Y, normal.Z) + 1f);
+                                Camera.ColorBuffer[row, col] = normalColor;
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }
