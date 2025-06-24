@@ -119,15 +119,40 @@ public static class MathHelpers
         return (weights[0] * normals[0]) + (weights[1] * normals[1]) + (weights[2] * normals[2]);
     }
 
-    public static bool IsVertexOutsideFrustum(Vector3 vertex, SceneCamera camera)
+    /// <summary>
+    /// Returns the -/+ vertex axis (x=1, y=2, z=3) if out of bounds (sign denotes which bound was crossed),
+    /// Returns 0 if in-bounds.
+    /// </summary>
+    /// <param name="vertex"></param>
+    /// <param name="camera"></param>
+    /// <returns></returns>
+    public static int IsVertexOutsideFrustum(Vector3 vertex, SceneCamera camera)
+    {
+        if (vertex.X < 0) return -1;
+        if (vertex.X > camera.ResolutionX) return 1;
+        if (vertex.Y < 0) return -2;
+        if (vertex.Y > camera.ResolutionY) return 2;
+        if (vertex.Z < float.Epsilon) return -3;
+        if (vertex.Z > 1f) return 3;
+
+        return 0;
+    }
+
+    public static bool IsTriangleClippingFrustumNaive(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
     {
         return (
-            vertex.X < 0
-            || vertex.X > camera.ResolutionX
-            || vertex.Y < 0
-            || vertex.Y > camera.ResolutionY
-            || vertex.Z < float.Epsilon
-            || vertex.Z > 1f
+            IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.A], camera) != 0
+            || IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.B], camera) != 0
+            || IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.C], camera) != 0
+        );
+    }
+
+    public static bool IsTriangleOutsideFrustumNaive(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        return (
+            IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.A], camera) != 0
+            && IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.B], camera) != 0
+            && IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.C], camera) != 0
         );
     }
 
@@ -139,13 +164,9 @@ public static class MathHelpers
     /// <param name="triangle"></param>
     /// <param name="sceneObject"></param>
     /// <param name="camera"></param>
+    /// <param name="triangles"></param>
     /// <returns></returns>
-    public static bool IsTriangleClippingFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
-    {
-        bool oobA = IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.A], camera);
-        bool oobB = IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.B], camera);
-        bool oobC = IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.C], camera);
-
-        return oobA || oobB || oobC;
-    }
+    // public static bool IsTriangleClippingNearPlane(Triangle triangle, SceneObject sceneObject, SceneCamera camera, List<Triangle> triangles)
+    // {
+    // }
 }

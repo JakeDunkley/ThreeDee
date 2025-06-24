@@ -39,45 +39,7 @@ public class Scene
 
             for (int i = 0; i < obj.Triangles.Length; i++)
             {
-                int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.Triangles[i], Camera);
-
-                Parallel.For(bounds[1], bounds[3], row =>
-                {
-                    for (int col = bounds[0]; col < bounds[2]; col++)
-                    {
-                        Vector3 ssPoint = new(col, row, 0);
-
-                        Vector3 weights = MathHelpers.CalculateVertexWeights(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
-
-                        if (MathHelpers.IsInside(weights))
-                        {
-                            float depth = MathHelpers.CalculateDepth(weights, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
-
-                            if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
-                            {
-                                Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
-                                float normalizedNormal = 0.5f * (normal.Y + 1f);
-                                
-                                Camera.ColorBuffer[row, col] = normalizedNormal * obj.Shader.ComputeAt(depth, weights, i, obj);
-                                Camera.DepthBuffer[row, col] = depth;
-                            }
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    public void Render_Debug()
-    {
-        foreach (SceneObject obj in SceneObjects)
-        {
-            obj.TransformParallel(Camera);
-            obj.ProjectToScreenSpaceParallel(Camera);
-
-            for (int i = 0; i < obj.Triangles.Length; i++)
-            {
-                if (MathHelpers.IsTriangleClippingFrustum(obj.Triangles[i], obj, Camera))
+                if (MathHelpers.IsTriangleOutsideFrustumNaive(obj.Triangles[i], obj, Camera))
                 {
                     continue;
                 }
@@ -99,11 +61,66 @@ public class Scene
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
                                 Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
+                                float normalizedNormal = 0.5f * (normal.Y + 1f);
 
-                                Camera.ColorBuffer[row, col] = 0.5f * (new Structs.Color(normal.X, normal.Y, normal.Z) + 1f);
+                                Camera.ColorBuffer[row, col] = normalizedNormal * obj.Shader.ComputeAt(depth, weights, i, obj);
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }
+                    }
+                });
+            }
+        }
+    }
+
+    public void Render_Debug()
+    {
+        foreach (SceneObject obj in SceneObjects)
+        {
+            obj.TransformParallel(Camera);
+            obj.ProjectToScreenSpaceParallel(Camera);
+
+            for (int i = 0; i < obj.Triangles.Length; i++)
+            {
+                bool clipped = false;
+
+                if (MathHelpers.IsTriangleClippingFrustumNaive(obj.Triangles[i], obj, Camera))
+                {
+                    clipped = true;
+                }
+
+                int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.Triangles[i], Camera);
+
+                Parallel.For(bounds[1], bounds[3], row =>
+                {
+                    for (int col = bounds[0]; col < bounds[2]; col++)
+                    {
+                        if (row == bounds[1] || row == bounds[3] - 1 || col == bounds[0] || col == bounds[2] - 1)
+                        {
+                            Camera.ColorBuffer[row, col] = Structs.Color.White;
+                        }
+
+                        else
+                        {
+                            Camera.ColorBuffer[row, col] = clipped ? Structs.Color.Red : Structs.Color.Green;
+                        }
+
+                        // Vector3 ssPoint = new(col, row, 0);
+
+                            // Vector3 weights = MathHelpers.CalculateVertexWeights(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+
+                            // if (MathHelpers.IsInside(weights))
+                            // {
+                            //     float depth = MathHelpers.CalculateDepth(weights, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+
+                            //     if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
+                            //     {
+                            //         Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.Triangles[i], obj);
+
+                            //         Camera.ColorBuffer[row, col] = 0.5f * (new Structs.Color(normal.X, normal.Y, normal.Z) + 1f);
+                            //         Camera.DepthBuffer[row, col] = depth;
+                            //     }
+                            // }
                     }
                 });
             }

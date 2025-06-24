@@ -30,6 +30,13 @@ public class Program
             Shader = new RandomTriColorShader()
         };
 
+        SceneObject ground = new("../../../models/plane.obj")
+        {
+            Translation = new(0, -1, 0),
+            Scale = new(10, 1, 10),
+            Shader = new RandomTriColorShader()
+        };
+
         Text debugText = OverlayManager.CreateAndAddOverlayTextObject("");
         debugText.Scale = new(0.5f, 0.5f);
 
