@@ -1,4 +1,5 @@
 using System.Numerics;
+using SFML.Graphics;
 
 namespace ThreeDee;
 
@@ -119,54 +120,106 @@ public static class MathHelpers
         return (weights[0] * normals[0]) + (weights[1] * normals[1]) + (weights[2] * normals[2]);
     }
 
-    /// <summary>
-    /// Returns the -/+ vertex axis (x=1, y=2, z=3) if out of bounds (sign denotes which bound was crossed),
-    /// Returns 0 if in-bounds.
-    /// </summary>
-    /// <param name="vertex"></param>
-    /// <param name="camera"></param>
-    /// <returns></returns>
-    public static int IsVertexOutsideFrustum(Vector3 vertex, SceneCamera camera)
+    public static bool IsTriangleLeftOfFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
     {
-        if (vertex.X < 0) return -1;
-        if (vertex.X > camera.ResolutionX) return 1;
-        if (vertex.Y < 0) return -2;
-        if (vertex.Y > camera.ResolutionY) return 2;
-        if (vertex.Z < float.Epsilon) return -3;
-        if (vertex.Z > 1f) return 3;
-
-        return 0;
+        return sceneObject.ScreenSpaceVertices[triangle.A].X < 0
+        && sceneObject.ScreenSpaceVertices[triangle.B].X < 0
+        && sceneObject.ScreenSpaceVertices[triangle.C].X < 0;
     }
 
-    public static bool IsTriangleClippingFrustumNaive(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    public static bool IsTriangleRightOfFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
     {
-        return (
-            IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.A], camera) != 0
-            || IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.B], camera) != 0
-            || IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.C], camera) != 0
-        );
+        return sceneObject.ScreenSpaceVertices[triangle.A].X > camera.ResolutionX
+        && sceneObject.ScreenSpaceVertices[triangle.B].X > camera.ResolutionX
+        && sceneObject.ScreenSpaceVertices[triangle.C].X > camera.ResolutionX;
     }
 
-    public static bool IsTriangleOutsideFrustumNaive(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    public static bool IsTriangleAboveFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
     {
-        return (
-            IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.A], camera) != 0
-            && IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.B], camera) != 0
-            && IsVertexOutsideFrustum(sceneObject.ScreenSpaceVertices[triangle.C], camera) != 0
-        );
+        return sceneObject.ScreenSpaceVertices[triangle.A].Y > camera.ResolutionY
+        && sceneObject.ScreenSpaceVertices[triangle.B].Y > camera.ResolutionY
+        && sceneObject.ScreenSpaceVertices[triangle.C].Y > camera.ResolutionY;
     }
 
-    /// <summary>
-    /// Checks if a triangle is clipping frustum or is completely out of bounds.
-    /// Will return true only if triangle is completely out of bounds.
-    /// Splits the triangle up if clipping frustum.
-    /// </summary>
-    /// <param name="triangle"></param>
-    /// <param name="sceneObject"></param>
-    /// <param name="camera"></param>
-    /// <param name="triangles"></param>
-    /// <returns></returns>
-    // public static bool IsTriangleClippingNearPlane(Triangle triangle, SceneObject sceneObject, SceneCamera camera, List<Triangle> triangles)
-    // {
-    // }
+    public static bool IsTriangleBelowFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        return sceneObject.ScreenSpaceVertices[triangle.A].X < 0
+        && sceneObject.ScreenSpaceVertices[triangle.B].X < 0
+        && sceneObject.ScreenSpaceVertices[triangle.C].X < 0;
+    }
+
+    public static bool IsTriangleOutsideFrustum(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        return IsTriangleLeftOfFrustum(triangle, sceneObject, camera)
+        || IsTriangleRightOfFrustum(triangle, sceneObject, camera)
+        || IsTriangleAboveFrustum(triangle, sceneObject, camera)
+        || IsTriangleBelowFrustum(triangle, sceneObject, camera);
+    }
+
+    public static bool IsVertexBehindNearPlane(Vector3 vertex, SceneCamera camera)
+    {
+        return vertex.Z <= camera.NearPlaneDepth;
+    }
+
+    public static bool IsTriangleBehindNearPlane(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        return IsVertexBehindNearPlane(sceneObject.TransformedVertices[triangle.A], camera)
+        || IsVertexBehindNearPlane(sceneObject.TransformedVertices[triangle.B], camera)
+        || IsVertexBehindNearPlane(sceneObject.TransformedVertices[triangle.C], camera);
+    }
+
+    private static void DivideTriangleMissingOneVertex(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+
+    }
+
+    private static void DivideTriangleMissingTwoVertices(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        float distAToNearPlane = camera.NearPlaneDepth - sceneObject.TransformedVertices[triangle.A].Z;
+        float distCToNearPlane = camera.NearPlaneDepth - sceneObject.TransformedVertices[triangle.C].Z;
+
+        float distAToB = sceneObject.TransformedVertices[triangle.B].Z - sceneObject.TransformedVertices[triangle.A].Z;
+        float distCToB = sceneObject.TransformedVertices[triangle.B].Z - sceneObject.TransformedVertices[triangle.C].Z;
+
+        float tAB = distAToNearPlane / distAToB;
+        float tCB = distCToNearPlane / distCToB;
+
+        // Vector3 newA = (tAB * sceneObject.TransformedVertices[triangle.A]) + ((1f - tAB) * sceneObject.TransformedVertices[triangle.B]);
+        // Vector3 newC = (tCB * sceneObject.TransformedVertices[triangle.C]) + ((1f - tCB) * sceneObject.TransformedVertices[triangle.B]);
+        Vector3 newA = ((1f - tAB) * sceneObject.TransformedVertices[triangle.A]) + (tAB * sceneObject.TransformedVertices[triangle.B]);
+        Vector3 newC = ((1f - tCB) * sceneObject.TransformedVertices[triangle.C]) + (tCB * sceneObject.TransformedVertices[triangle.B]);
+
+        sceneObject.TransformedVertices.Add(newA);
+        sceneObject.TransformedVertices.Add(newC);
+
+        Triangle clippedTriangle = new()
+        {
+            A = sceneObject.TransformedVertices.Count - 2,
+            B = triangle.B,
+            C = sceneObject.TransformedVertices.Count - 1
+        };
+
+        sceneObject.ClippedTriangles.Add(clippedTriangle);
+    }
+
+    public static void ClipTriangleMissingTwoVertices(bool isAB, bool isBC, bool isCA, Triangle triangle, SceneObject sceneObject, SceneCamera camera)
+    {
+        if (isAB)
+        {
+            DivideTriangleMissingTwoVertices(new Triangle{A = triangle.B, B = triangle.C, C = triangle.A}, sceneObject, camera);
+            return;
+        }
+
+        if (isBC)
+        {
+            DivideTriangleMissingTwoVertices(new Triangle{A = triangle.C, B = triangle.A, C = triangle.B}, sceneObject, camera);
+            return;
+        }
+
+        if (isCA)
+        {
+            DivideTriangleMissingTwoVertices(triangle, sceneObject, camera);
+            return;
+        }
+    }
 }

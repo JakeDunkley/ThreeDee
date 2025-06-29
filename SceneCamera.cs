@@ -105,13 +105,13 @@ public class SceneCamera
             UpdateBasisVectorForward();
         }
 
-        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.O])
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.I])
         {
             FOV -= 20f * (float)TickManager.Delta;
             UpdateFOV();
         }
 
-        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.P])
+        if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.O])
         {
             FOV += 20f * (float)TickManager.Delta;
             UpdateFOV();

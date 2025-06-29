@@ -20,7 +20,6 @@ public class Program
         SceneObject cube = new("../../../models/cube.obj")
         {
             Translation = new(0, 0, 3),
-            // Rotation = new(-15, 0, 0),
             Shader = new TextureShader("../../../textures/colorGrid.png")
         };
 
@@ -34,16 +33,22 @@ public class Program
         {
             Translation = new(0, -1, 0),
             Scale = new(10, 1, 10),
-            Shader = new RandomTriColorShader()
+            // Shader = new RandomTriColorShader()
+            Shader = new TextureShader("../../../textures/colorGrid.png")
         };
+
+        Scene scene = new();
+        // scene.SceneObjects.Add(ico);
+        // scene.SceneObjects.Add(cube);
+        // scene.SceneObjects.Add(suzanne);
+        scene.SceneObjects.Add(ground);
+
+        Text frameTimeText = OverlayManager.CreateAndAddOverlayTextObject("");
+        frameTimeText.Scale = new(0.5f, 0.5f);
 
         Text debugText = OverlayManager.CreateAndAddOverlayTextObject("");
         debugText.Scale = new(0.5f, 0.5f);
-
-        Scene scene = new();
-        scene.SceneObjects.Add(ico);
-        scene.SceneObjects.Add(cube);
-        scene.SceneObjects.Add(suzanne);
+        debugText.Position = new(WindowManager.WindowX - 50f, 0f);
 
         while (WindowManager.WindowIsOpen)
         {
@@ -51,9 +56,7 @@ public class Program
 
             WindowManager.DispatchEvents();
             InputManager.PollInput();
-            // WindowManager.InducePain();
 
-            // cube.RotateBy(new Vector3(0, (float)(90.0 * TickManager.Delta), 0));
             suzanne.RotateBy(new Vector3(0, 0, (float)(90.0 * TickManager.Delta)));
 
             scene.RenderParallel();
@@ -65,7 +68,8 @@ public class Program
             WindowManager.CheckForInput();
 
             TickManager.FrameEnd();
-            debugText.DisplayedString = TickManager.FrameTimeInfo();
+            frameTimeText.DisplayedString = TickManager.FrameTimeInfo();
+            debugText.DisplayedString = scene.Camera.IsDebugRender ? "DEBUG" : "";
         }
     }
 }
