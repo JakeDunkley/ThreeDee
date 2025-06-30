@@ -9,8 +9,9 @@ public class SceneCamera
     public int ResolutionX = 512;
     public int ResolutionY = 512;
     public float FOV = 90f;
+    public float ClippingPlaneDepth = 0.001f;
     public float NearPlaneDepth = 0.01f;
-    public float FarPlaneDepth = 100f;
+    public float FarPlaneDepth = 20f;
     public bool IsDebugRender = false;
 
     public float ProjectionPlaneWidth;
@@ -73,34 +74,34 @@ public class SceneCamera
     {
         if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.W])
         {
-            Position += (float)TickManager.Delta * 4f * BasisVectorForward;
+            Position += (InputManager.IsKeyPressedThisFrame[Keyboard.Key.LShift] ? 0.1f : 1f) * (float)TickManager.Delta * 4f * BasisVectorForward;
         }
 
         if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.S])
         {
-            Position -= (float)TickManager.Delta * 4f * BasisVectorForward;
+            Position -= (InputManager.IsKeyPressedThisFrame[Keyboard.Key.LShift] ? 0.1f : 1f) * (float)TickManager.Delta * 4f * BasisVectorForward;
         }
 
         if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.A])
         {
-            Position += (float)TickManager.Delta * 4f * new Vector3(-BasisVectorForward.Z, 0, BasisVectorForward.X);
+            Position += (InputManager.IsKeyPressedThisFrame[Keyboard.Key.LShift] ? 0.1f : 1f) * (float)TickManager.Delta * 4f * new Vector3(-BasisVectorForward.Z, 0, BasisVectorForward.X);
         }
 
         if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.D])
         {
-            Position -= (float)TickManager.Delta * 4f * new Vector3(-BasisVectorForward.Z, 0, BasisVectorForward.X);
+            Position -= (InputManager.IsKeyPressedThisFrame[Keyboard.Key.LShift] ? 0.1f : 1f) * (float)TickManager.Delta * 4f * new Vector3(-BasisVectorForward.Z, 0, BasisVectorForward.X);
         }
 
         if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.Left])
         {
-            Rotation += (float)TickManager.Delta * new Vector3(0, 90, 0);
+            Rotation += (InputManager.IsKeyPressedThisFrame[Keyboard.Key.LShift] ? 0.1f : 1f) * (float)TickManager.Delta * new Vector3(0, 90, 0);
 
             UpdateBasisVectorForward();
         }
 
         if (InputManager.IsKeyPressedThisFrame[Keyboard.Key.Right])
         {
-            Rotation += (float)TickManager.Delta * new Vector3(0, -90, 0);
+            Rotation += (InputManager.IsKeyPressedThisFrame[Keyboard.Key.LShift] ? 0.1f : 1f) * (float)TickManager.Delta * new Vector3(0, -90, 0);
 
             UpdateBasisVectorForward();
         }

@@ -34,15 +34,15 @@ public class TextureShader : Shader
     public override Structs.Color ComputeAt(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
     {
         Vector2[] uvCoords = [
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].uvA],
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].uvB],
-            sceneObject.UVCoordinates[sceneObject.Triangles[triangleIndex].uvC]
+            sceneObject.ClipUVs[sceneObject.ClipTriangles[triangleIndex].uvA],
+            sceneObject.ClipUVs[sceneObject.ClipTriangles[triangleIndex].uvB],
+            sceneObject.ClipUVs[sceneObject.ClipTriangles[triangleIndex].uvC]
         ];
 
         float[] depths = [
-            sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].A].Z,
-            sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].B].Z,
-            sceneObject.ScreenSpaceVertices[sceneObject.Triangles[triangleIndex].C].Z
+            sceneObject.SSVertices[sceneObject.ClipTriangles[triangleIndex].A].Z,
+            sceneObject.SSVertices[sceneObject.ClipTriangles[triangleIndex].B].Z,
+            sceneObject.SSVertices[sceneObject.ClipTriangles[triangleIndex].C].Z
         ];
 
         Vector2 uv = vertexWeights[0] * uvCoords[0] / depths[0];

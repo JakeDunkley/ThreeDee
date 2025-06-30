@@ -31,7 +31,7 @@ public class Program
 
         SceneObject ground = new("../../../models/plane.obj")
         {
-            Translation = new(0, -1, 0),
+            Translation = new(0, -0.5f, 0),
             Scale = new(10, 1, 10),
             // Shader = new RandomTriColorShader()
             Shader = new TextureShader("../../../textures/colorGrid.png")
@@ -39,7 +39,7 @@ public class Program
 
         Scene scene = new();
         // scene.SceneObjects.Add(ico);
-        // scene.SceneObjects.Add(cube);
+        scene.SceneObjects.Add(cube);
         // scene.SceneObjects.Add(suzanne);
         scene.SceneObjects.Add(ground);
 

@@ -40,6 +40,8 @@ public class Scene
 
             for (int i = 0; i < obj.Triangles.Length; i++)
             {
+                obj.ClipTriangles.Add(obj.Triangles[i]);
+
                 if (MathHelpers.IsTriangleOutsideFrustum(obj.Triangles[i], obj, Camera) || MathHelpers.IsTriangleBehindNearPlane(obj.Triangles[i], obj, Camera))
                 {
                     continue;
@@ -53,11 +55,11 @@ public class Scene
                     {
                         Vector3 ssPoint = new(col, row, 0);
 
-                        Vector3 weights = MathHelpers.CalculateVertexWeights(ssPoint, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+                        Vector3 weights = MathHelpers.CalculateVertexWeights(ssPoint, obj.SSVertices[obj.Triangles[i].A], obj.SSVertices[obj.Triangles[i].B], obj.SSVertices[obj.Triangles[i].C]);
 
                         if (MathHelpers.IsInside(weights))
                         {
-                            float depth = MathHelpers.CalculateDepth(weights, obj.ScreenSpaceVertices[obj.Triangles[i].A], obj.ScreenSpaceVertices[obj.Triangles[i].B], obj.ScreenSpaceVertices[obj.Triangles[i].C]);
+                            float depth = MathHelpers.CalculateDepth(weights, obj.SSVertices[obj.Triangles[i].A], obj.SSVertices[obj.Triangles[i].B], obj.SSVertices[obj.Triangles[i].C]);
 
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
@@ -84,15 +86,24 @@ public class Scene
 
             for (int i = 0; i < obj.Triangles.Length; i++)
             {
-                bool isABehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].A], Camera);
-                bool isBBehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].B], Camera);
-                bool isCBehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].C], Camera);
+                // bool isABehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].A], Camera);
+                // bool isBBehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].B], Camera);
+                // bool isCBehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].C], Camera);
+                bool isABehind = obj.TransVertices[obj.Triangles[i].A].Z <= Camera.NearPlaneDepth;
+                bool isBBehind = obj.TransVertices[obj.Triangles[i].B].Z <= Camera.NearPlaneDepth;
+                bool isCBehind = obj.TransVertices[obj.Triangles[i].C].Z <= Camera.NearPlaneDepth;
 
                 int behindCount = (isABehind ? 1 : 0) + (isBBehind ? 1 : 0) + (isCBehind ? 1 : 0);
 
                 if (behindCount == 0)
                 {
-                    obj.ClippedTriangles.Add(obj.Triangles[i]);
+                    obj.ClipTriangles.Add(obj.Triangles[i]);
+                    continue;
+                }
+
+                if (behindCount == 1)
+                {
+                    MathHelpers.ClipTriangleMissingOneVertex(isABehind, isBBehind, isCBehind, obj.Triangles[i], obj, Camera);
                     continue;
                 }
 
@@ -114,14 +125,14 @@ public class Scene
 
             obj.ProjectToScreenSpace(Camera);
 
-            for (int i = 0; i < obj.ClippedTriangles.Count; i++)
+            for (int i = 0; i < obj.ClipTriangles.Count; i++)
             {
-                if (MathHelpers.IsTriangleOutsideFrustum(obj.ClippedTriangles[i], obj, Camera))
+                if (MathHelpers.IsTriangleOutsideFrustum(obj.ClipTriangles[i], obj, Camera))
                 {
                     continue;
                 }
 
-                int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.ClippedTriangles[i], Camera);
+                int[] bounds = obj.CalculatePixelScreenSpaceBounds(obj.ClipTriangles[i], Camera);
 
                 Parallel.For(bounds[1], bounds[3], row =>
                 {
@@ -129,18 +140,37 @@ public class Scene
                     {
                         Vector3 ssPoint = new(col, row, 0);
 
-                        Vector3 weights = MathHelpers.CalculateVertexWeights(ssPoint, obj.ScreenSpaceVertices[obj.ClippedTriangles[i].A], obj.ScreenSpaceVertices[obj.ClippedTriangles[i].B], obj.ScreenSpaceVertices[obj.ClippedTriangles[i].C]);
+                        Vector3 weights = MathHelpers.CalculateVertexWeights(ssPoint, obj.SSVertices[obj.ClipTriangles[i].A], obj.SSVertices[obj.ClipTriangles[i].B], obj.SSVertices[obj.ClipTriangles[i].C]);
 
                         if (MathHelpers.IsInside(weights))
                         {
-                            float depth = MathHelpers.CalculateDepth(weights, obj.ScreenSpaceVertices[obj.ClippedTriangles[i].A], obj.ScreenSpaceVertices[obj.ClippedTriangles[i].B], obj.ScreenSpaceVertices[obj.ClippedTriangles[i].C]);
+                            float depth = MathHelpers.CalculateDepth(weights, obj.SSVertices[obj.ClipTriangles[i].A], obj.SSVertices[obj.ClipTriangles[i].B], obj.SSVertices[obj.ClipTriangles[i].C]);
 
                             if (Camera.DepthBuffer[row, col] == 0f || depth < Camera.DepthBuffer[row, col])
                             {
-                                Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.ClippedTriangles[i], obj);
+                                Vector3 normal = MathHelpers.CalculateNormalSmooth(weights, obj.ClipTriangles[i], obj);
                                 float normalizedNormal = 0.5f * (normal.Y + 1f);
 
+                                // Camera.ColorBuffer[row, col] = new Structs.Color(normal.X * 0.5f + 0.5f, normal.Y * 0.5f + 0.5f, normal.Z * 0.5f + 0.5f);
                                 Camera.ColorBuffer[row, col] = normalizedNormal * obj.Shader.ComputeAt(depth, weights, i, obj);
+                                Structs.Color depthColor;
+
+                                if (depth > 0f && depth < 1f)
+                                {
+                                    depthColor = depth * Structs.Color.Green;
+                                }
+
+                                else if (depth <= 0f)
+                                {
+                                    depthColor = Structs.Color.Red;
+                                }
+
+                                else
+                                {
+                                    depthColor = Structs.Color.Cyan;
+                                }
+                                Camera.ColorBuffer[row, col] = depthColor;
+
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }

@@ -5,15 +5,15 @@ namespace ThreeDee;
 public struct Triangle
 {
     public int A, B, C;
-    public int uvA, uvB, uvC;
     public int nA, nB, nC;
+    public int uvA, uvB, uvC;
 }
 
 public class SceneObject
 {
     public Vector3[] Vertices;
     public Vector3[] Normals;
-    public Vector2[] UVCoordinates;
+    public Vector2[] UVs;
     public Triangle[] Triangles;
 
     public Vector3 Scale;
@@ -22,18 +22,19 @@ public class SceneObject
 
     public Shader Shader;
 
-    public List<Vector3> TransformedVertices;
-    public List<Vector3> ScreenSpaceVertices;
-    public List<Vector3> TransformedNormals;
-    public List<Triangle> ClippedTriangles;
+    public List<Vector3> TransVertices;
+    public List<Vector3> TransNormals;
+    public List<Vector3> SSVertices;
+    public List<Vector2> ClipUVs;
+    public List<Triangle> ClipTriangles;
 
     public SceneObject(string filename)
     {
         string[] lines = File.ReadLines(filename).ToArray();
 
         List<Vector3> parsedVertices = new();
-        List<Triangle> parsedTriangles = new();
         List<Vector3> parsedNormals = new();
+        List<Triangle> parsedTriangles = new();
         List<Vector2> parsedUVCoordinates = new();
 
         foreach (string line in lines)
@@ -79,12 +80,12 @@ public class SceneObject
                             A = int.Parse(v1Splits[0]) - 1,
                             B = int.Parse(v2Splits[0]) - 1,
                             C = int.Parse(v3Splits[0]) - 1,
-                            uvA = int.Parse(v1Splits[1]) - 1,
-                            uvB = int.Parse(v2Splits[1]) - 1,
-                            uvC = int.Parse(v3Splits[1]) - 1,
                             nA = int.Parse(v1Splits[2]) - 1,
                             nB = int.Parse(v2Splits[2]) - 1,
                             nC = int.Parse(v3Splits[2]) - 1,
+                            uvA = int.Parse(v1Splits[1]) - 1,
+                            uvB = int.Parse(v2Splits[1]) - 1,
+                            uvC = int.Parse(v3Splits[1]) - 1
                         }
                     );
 
@@ -93,26 +94,37 @@ public class SceneObject
         }
 
         Vertices = parsedVertices.ToArray();
-        UVCoordinates = parsedUVCoordinates.ToArray();
         Normals = parsedNormals.ToArray();
+        UVs = parsedUVCoordinates.ToArray();
         Triangles = parsedTriangles.ToArray();
 
-        TransformedVertices = new();
-        ScreenSpaceVertices = new();
-        TransformedNormals = new();
-        ClippedTriangles = new();
+        TransVertices = new List<Vector3>(new Vector3[Vertices.Length]);
+        TransNormals = new();
+        SSVertices = new();
+        ClipUVs = new();
+        ClipTriangles = new();
 
         Scale = new Vector3(1);
 
         Shader = new();
     }
 
+    private void CopyUVs()
+    {
+        foreach (Vector2 uv in UVs)
+        {
+            ClipUVs.Add(uv);
+        }
+    }
+
     public void ClearProcessedGeometryBuffers()
     {
-        TransformedVertices = new();
-        ScreenSpaceVertices = new();
-        TransformedNormals = new();
-        ClippedTriangles = new();
+        TransVertices = new List<Vector3>(new Vector3[Vertices.Length]);
+        TransNormals = new List<Vector3>(new Vector3[Normals.Length]);
+        SSVertices.Clear();
+        ClipUVs.Clear();
+        CopyUVs();
+        ClipTriangles.Clear();
     }
 
     public void ScaleBy(Vector3 scaleAddition)
@@ -167,7 +179,7 @@ public class SceneObject
 
             Matrix4x4 transformedVertexMatrix = Matrix4x4.Multiply(transformMatrix, vertexMatrix);
 
-            TransformedVertices[i] = new Vector3(transformedVertexMatrix.M11, transformedVertexMatrix.M21, transformedVertexMatrix.M31);
+            TransVertices[i] = new Vector3(transformedVertexMatrix.M11, transformedVertexMatrix.M21, transformedVertexMatrix.M31);
         });
 
         Parallel.For(0, Normals.Length, i =>
@@ -181,7 +193,7 @@ public class SceneObject
 
             Matrix4x4 transformedNormalMatrix = Matrix4x4.Multiply(normalRotationMatrix, normalMatrix);
 
-            TransformedNormals[i] = new Vector3(transformedNormalMatrix.M11, transformedNormalMatrix.M21, transformedNormalMatrix.M31);
+            TransNormals[i] = new Vector3(transformedNormalMatrix.M11, transformedNormalMatrix.M21, transformedNormalMatrix.M31);
         });
     }
 
@@ -190,22 +202,22 @@ public class SceneObject
         float halfResX = 0.5f * camera.ResolutionX;
         float halfResY = 0.5f * camera.ResolutionY;
 
-        for (int i = 0; i < TransformedVertices.Count; i++)
+        for (int i = 0; i < TransVertices.Count; i++)
         {
-            float zRatio = camera.NearPlaneDepth / TransformedVertices[i].Z;
+            float zRatio = camera.NearPlaneDepth / TransVertices[i].Z;
 
-            ScreenSpaceVertices.Add(new Vector3(
-                (TransformedVertices[i].X * camera.WidthRatio * zRatio) + halfResX,
-                (TransformedVertices[i].Y * camera.HeightRatio * zRatio) + halfResY,
-                (TransformedVertices[i].Z - camera.NearPlaneDepth) / (camera.FarPlaneDepth - camera.NearPlaneDepth)
+            SSVertices.Add(new Vector3(
+                (TransVertices[i].X * camera.WidthRatio * zRatio) + halfResX,
+                (TransVertices[i].Y * camera.HeightRatio * zRatio) + halfResY,
+                (TransVertices[i].Z - camera.NearPlaneDepth) / (camera.FarPlaneDepth - camera.NearPlaneDepth)
             ));
         }
     }
 
     public int[] CalculatePixelScreenSpaceBounds(Triangle triangle, SceneCamera camera)
     {
-        Vector3 min = Vector3.Min(ScreenSpaceVertices[triangle.A], Vector3.Min(ScreenSpaceVertices[triangle.B], ScreenSpaceVertices[triangle.C]));
-        Vector3 max = Vector3.Max(ScreenSpaceVertices[triangle.A], Vector3.Max(ScreenSpaceVertices[triangle.B], ScreenSpaceVertices[triangle.C]));
+        Vector3 min = Vector3.Min(SSVertices[triangle.A], Vector3.Min(SSVertices[triangle.B], SSVertices[triangle.C]));
+        Vector3 max = Vector3.Max(SSVertices[triangle.A], Vector3.Max(SSVertices[triangle.B], SSVertices[triangle.C]));
 
         return [
             Math.Max(0, (int)Math.Floor(min.X)),
