@@ -7,6 +7,7 @@ public struct Triangle
     public int A, B, C;
     public int nA, nB, nC;
     public int uvA, uvB, uvC;
+    public Shader Shader;
 }
 
 public class SceneObject
@@ -28,9 +29,11 @@ public class SceneObject
     public List<Vector2> ClipUVs;
     public List<Triangle> ClipTriangles;
 
-    public SceneObject(string filename)
+    public SceneObject(string filename, Shader shader)
     {
         string[] lines = File.ReadLines(filename).ToArray();
+
+        Shader = shader;
 
         List<Vector3> parsedVertices = new();
         List<Vector3> parsedNormals = new();
@@ -85,7 +88,8 @@ public class SceneObject
                             nC = int.Parse(v3Splits[2]) - 1,
                             uvA = int.Parse(v1Splits[1]) - 1,
                             uvB = int.Parse(v2Splits[1]) - 1,
-                            uvC = int.Parse(v3Splits[1]) - 1
+                            uvC = int.Parse(v3Splits[1]) - 1,
+                            Shader = Shader
                         }
                     );
 
@@ -105,8 +109,6 @@ public class SceneObject
         ClipTriangles = new();
 
         Scale = new Vector3(1);
-
-        Shader = new();
     }
 
     private void CopyUVs()

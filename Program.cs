@@ -12,36 +12,39 @@ public class Program
 
         WindowManager.Window.SetActive();
 
-        SceneObject ico = new("../../../models/ico.obj")
+        SceneObject ico = new("../../../models/ico.obj", new Shader())
         {
             Translation = new(-3, 0, 3),
         };
 
-        SceneObject cube = new("../../../models/cube.obj")
+        SceneObject cube = new("../../../models/cube.obj", new TextureShader("../../../textures/colorGrid.png"))
         {
-            Translation = new(0, 0, 3),
-            Shader = new TextureShader("../../../textures/colorGrid.png")
+            Translation = new(0, 0, 3)
         };
 
-        SceneObject suzanne = new("../../../models/suzanne.obj")
+        SceneObject suzanne = new("../../../models/suzanne.obj", new RandomTriColorShader())
         {
-            Translation = new(3, 0, 3),
-            Shader = new RandomTriColorShader()
+            Translation = new(3, 0, 3)
         };
 
-        SceneObject ground = new("../../../models/plane.obj")
+        SceneObject ground = new("../../../models/plane.obj", new TextureShader("../../../textures/colorGrid.png"))
         {
             Translation = new(0, -0.5f, 0),
-            Scale = new(10, 1, 10),
-            // Shader = new RandomTriColorShader()
-            Shader = new TextureShader("../../../textures/colorGrid.png")
+            Scale = new(10, 1, 10)
+        };
+
+        SceneObject flatTri = new("../../../models/flatTri.obj", new TextureShader("../../../textures/colorGrid.png"))
+        {
+            Translation = new(0, -0.5f, 0),
+            Scale = new(2, 1, 2)
         };
 
         Scene scene = new();
         // scene.SceneObjects.Add(ico);
-        scene.SceneObjects.Add(cube);
+        // scene.SceneObjects.Add(cube);
         // scene.SceneObjects.Add(suzanne);
-        scene.SceneObjects.Add(ground);
+        // scene.SceneObjects.Add(ground);
+        scene.SceneObjects.Add(flatTri);
 
         Text frameTimeText = OverlayManager.CreateAndAddOverlayTextObject("");
         frameTimeText.Scale = new(0.5f, 0.5f);

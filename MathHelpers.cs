@@ -199,31 +199,35 @@ public static class MathHelpers
         Triangle clippedTriangleLeft = new()
         {
             A = triangle.A,
-            B = sceneObject.TransVertices.Count - 2,
+            B = sceneObject.TransVertices.Count - 1,
             C = triangle.C,
 
             nA = triangle.nA,
-            nB = sceneObject.TransNormals.Count - 2,
+            nB = sceneObject.TransNormals.Count - 1,
             nC = triangle.nC,
 
             uvA = triangle.uvA,
-            uvB = sceneObject.ClipUVs.Count - 2,
+            uvB = sceneObject.ClipUVs.Count - 1,
             uvC = triangle.uvC,
+
+            Shader = new ColorShader(Structs.Color.Cyan)
         };
 
         Triangle clippedTriangleRight = new()
         {
             A = triangle.A,
-            B = sceneObject.TransVertices.Count - 1,
-            C = sceneObject.TransVertices.Count - 2,
+            B = sceneObject.TransVertices.Count - 2,
+            C = sceneObject.TransVertices.Count - 1,
 
             nA = triangle.nA,
-            nB = sceneObject.TransNormals.Count - 1,
-            nC = sceneObject.TransNormals.Count - 2,
+            nB = sceneObject.TransNormals.Count - 2,
+            nC = sceneObject.TransNormals.Count - 1,
 
             uvA = triangle.uvA,
-            uvB = sceneObject.ClipUVs.Count - 1,
-            uvC = sceneObject.ClipUVs.Count - 2
+            uvB = sceneObject.ClipUVs.Count - 2,
+            uvC = sceneObject.ClipUVs.Count - 1,
+
+            Shader = new ColorShader(Structs.Color.Green)
         };
 
         sceneObject.ClipTriangles.Add(clippedTriangleLeft);
@@ -270,6 +274,7 @@ public static class MathHelpers
             uvA = sceneObject.ClipUVs.Count - 2,
             uvB = triangle.uvB,
             uvC = sceneObject.ClipUVs.Count - 1,
+            Shader = new ColorShader(Structs.Color.Yellow)
         };
 
         sceneObject.ClipTriangles.Add(clippedTriangle);

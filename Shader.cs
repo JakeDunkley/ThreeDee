@@ -12,15 +12,30 @@ public class Shader
     }
 }
 
-public class RandomTriColorShader : Shader
+public class ColorShader : Shader
 {
+    public Structs.Color Color;
+
+    public ColorShader(Structs.Color color)
+    {
+        Color = color;
+    }
+
     public override Structs.Color ComputeAt(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
     {
-        Structs.Color[] colors = [Structs.Color.Red, Structs.Color.Yellow, Structs.Color.Green, Structs.Color.Cyan, Structs.Color.Blue];
-
-        return (1f - depth) * colors[triangleIndex % colors.Length];
+        return Color;
     }
 }
+
+public class RandomTriColorShader : Shader
+    {
+        public override Structs.Color ComputeAt(float depth, Vector3 vertexWeights, int triangleIndex, SceneObject sceneObject)
+        {
+            Structs.Color[] colors = [Structs.Color.Red, Structs.Color.Yellow, Structs.Color.Green, Structs.Color.Cyan, Structs.Color.Blue];
+
+            return (1f - depth) * colors[triangleIndex % colors.Length];
+        }
+    }
 
 public class TextureShader : Shader
 {

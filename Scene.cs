@@ -152,25 +152,25 @@ public class Scene
                                 float normalizedNormal = 0.5f * (normal.Y + 1f);
 
                                 // Camera.ColorBuffer[row, col] = new Structs.Color(normal.X * 0.5f + 0.5f, normal.Y * 0.5f + 0.5f, normal.Z * 0.5f + 0.5f);
-                                Camera.ColorBuffer[row, col] = normalizedNormal * obj.Shader.ComputeAt(depth, weights, i, obj);
-                                Structs.Color depthColor;
+                                // Camera.ColorBuffer[row, col] = normalizedNormal * obj.Shader.ComputeAt(depth, weights, i, obj);
+                                // Structs.Color depthColor;
 
-                                if (depth > 0f && depth < 1f)
-                                {
-                                    depthColor = depth * Structs.Color.Green;
-                                }
+                                // if (depth > 0f && depth < 1f)
+                                // {
+                                //     depthColor = depth * Structs.Color.Green;
+                                // }
 
-                                else if (depth <= 0f)
-                                {
-                                    depthColor = Structs.Color.Red;
-                                }
+                                // else if (depth <= 0f)
+                                // {
+                                //     depthColor = Structs.Color.Red;
+                                // }
 
-                                else
-                                {
-                                    depthColor = Structs.Color.Cyan;
-                                }
-                                Camera.ColorBuffer[row, col] = depthColor;
-
+                                // else
+                                // {
+                                //     depthColor = Structs.Color.Cyan;
+                                // }
+                                // Camera.ColorBuffer[row, col] = depthColor;
+                                Camera.ColorBuffer[row, col] = obj.ClipTriangles[i].Shader.ComputeAt(depth, weights, i, obj);
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }
