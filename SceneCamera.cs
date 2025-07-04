@@ -9,7 +9,7 @@ public class SceneCamera
     public int ResolutionX = 512;
     public int ResolutionY = 512;
     public float FOV = 90f;
-    public float ClippingPlaneDepth = 0.001f;
+    public float ClippingOffset = 0.1f;
     public float NearPlaneDepth = 0.01f;
     public float FarPlaneDepth = 20f;
     public bool IsDebugRender = false;

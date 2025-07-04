@@ -86,12 +86,9 @@ public class Scene
 
             for (int i = 0; i < obj.Triangles.Length; i++)
             {
-                // bool isABehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].A], Camera);
-                // bool isBBehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].B], Camera);
-                // bool isCBehind = MathHelpers.IsVertexBehindNearPlane(obj.TransformedVertices[obj.Triangles[i].C], Camera);
-                bool isABehind = obj.TransVertices[obj.Triangles[i].A].Z <= Camera.NearPlaneDepth;
-                bool isBBehind = obj.TransVertices[obj.Triangles[i].B].Z <= Camera.NearPlaneDepth;
-                bool isCBehind = obj.TransVertices[obj.Triangles[i].C].Z <= Camera.NearPlaneDepth;
+                bool isABehind = obj.TransVertices[obj.Triangles[i].A].Z <= (Camera.NearPlaneDepth + Camera.ClippingOffset);
+                bool isBBehind = obj.TransVertices[obj.Triangles[i].B].Z <= (Camera.NearPlaneDepth + Camera.ClippingOffset);
+                bool isCBehind = obj.TransVertices[obj.Triangles[i].C].Z <= (Camera.NearPlaneDepth + Camera.ClippingOffset);
 
                 int behindCount = (isABehind ? 1 : 0) + (isBBehind ? 1 : 0) + (isCBehind ? 1 : 0);
 
@@ -171,6 +168,7 @@ public class Scene
                                 // }
                                 // Camera.ColorBuffer[row, col] = depthColor;
                                 Camera.ColorBuffer[row, col] = obj.ClipTriangles[i].Shader.ComputeAt(depth, weights, i, obj);
+                                // Camera.ColorBuffer[row, col] = new Structs.Color(1f - depth);
                                 Camera.DepthBuffer[row, col] = depth;
                             }
                         }

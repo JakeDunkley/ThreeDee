@@ -43,8 +43,8 @@ public class Program
         // scene.SceneObjects.Add(ico);
         // scene.SceneObjects.Add(cube);
         // scene.SceneObjects.Add(suzanne);
-        // scene.SceneObjects.Add(ground);
-        scene.SceneObjects.Add(flatTri);
+        scene.SceneObjects.Add(ground);
+        // scene.SceneObjects.Add(flatTri);
 
         Text frameTimeText = OverlayManager.CreateAndAddOverlayTextObject("");
         frameTimeText.Scale = new(0.5f, 0.5f);

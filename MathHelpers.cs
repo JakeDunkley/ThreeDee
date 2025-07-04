@@ -170,7 +170,7 @@ public static class MathHelpers
 
     private static void DivideTriangleMissingOneVertex(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
     {
-        float distBToNearPlane = camera.ClippingPlaneDepth - sceneObject.TransVertices[triangle.B].Z;
+        float distBToNearPlane = camera.NearPlaneDepth + camera.ClippingOffset - sceneObject.TransVertices[triangle.B].Z;
 
         float distBToA = sceneObject.TransVertices[triangle.A].Z - sceneObject.TransVertices[triangle.B].Z;
         float distBToC = sceneObject.TransVertices[triangle.C].Z - sceneObject.TransVertices[triangle.B].Z;
@@ -178,20 +178,20 @@ public static class MathHelpers
         float tBA = distBToNearPlane / distBToA;
         float tBC = distBToNearPlane / distBToC;
 
-        Vector3 newBL = ((1f - tBA) * sceneObject.TransVertices[triangle.B]) + (tBA * sceneObject.TransVertices[triangle.A]);
-        Vector3 newBR = ((1f - tBC) * sceneObject.TransVertices[triangle.B]) + (tBC * sceneObject.TransVertices[triangle.C]);
+        Vector3 newBR = ((1f - tBA) * sceneObject.TransVertices[triangle.B]) + (tBA * sceneObject.TransVertices[triangle.A]);
+        Vector3 newBL = ((1f - tBC) * sceneObject.TransVertices[triangle.B]) + (tBC * sceneObject.TransVertices[triangle.C]);
 
         sceneObject.TransVertices.Add(newBL);
         sceneObject.TransVertices.Add(newBR);
 
-        Vector3 newBLn = ((1f - tBA) * sceneObject.TransNormals[triangle.nB]) + (tBA * sceneObject.TransNormals[triangle.nA]);
-        Vector3 newBRn = ((1f - tBC) * sceneObject.TransNormals[triangle.nB]) + (tBC * sceneObject.TransNormals[triangle.nC]);
+        Vector3 newBRn = ((1f - tBA) * sceneObject.TransNormals[triangle.nB]) + (tBA * sceneObject.TransNormals[triangle.nA]);
+        Vector3 newBLn = ((1f - tBC) * sceneObject.TransNormals[triangle.nB]) + (tBC * sceneObject.TransNormals[triangle.nC]);
 
         sceneObject.TransNormals.Add(newBLn);
         sceneObject.TransNormals.Add(newBRn);
 
-        Vector2 newBLuv = ((1f - tBA) * sceneObject.UVs[triangle.uvB]) + (tBA * sceneObject.UVs[triangle.uvA]);
-        Vector2 newBRuv = ((1f - tBC) * sceneObject.UVs[triangle.uvB]) + (tBC * sceneObject.UVs[triangle.uvC]);
+        Vector2 newBRuv = ((1f - tBA) * sceneObject.UVs[triangle.uvB]) + (tBA * sceneObject.UVs[triangle.uvA]);
+        Vector2 newBLuv = ((1f - tBC) * sceneObject.UVs[triangle.uvB]) + (tBC * sceneObject.UVs[triangle.uvC]);
 
         sceneObject.ClipUVs.Add(newBLuv);
         sceneObject.ClipUVs.Add(newBRuv);
@@ -199,35 +199,37 @@ public static class MathHelpers
         Triangle clippedTriangleLeft = new()
         {
             A = triangle.A,
-            B = sceneObject.TransVertices.Count - 1,
+            B = sceneObject.TransVertices.Count - 2,
             C = triangle.C,
 
             nA = triangle.nA,
-            nB = sceneObject.TransNormals.Count - 1,
+            nB = sceneObject.TransNormals.Count - 2,
             nC = triangle.nC,
 
             uvA = triangle.uvA,
-            uvB = sceneObject.ClipUVs.Count - 1,
+            uvB = sceneObject.ClipUVs.Count - 2,
             uvC = triangle.uvC,
 
-            Shader = new ColorShader(Structs.Color.Cyan)
+            // Shader = new ColorShader(Structs.Color.Cyan)
+            Shader = sceneObject.Shader
         };
 
         Triangle clippedTriangleRight = new()
         {
             A = triangle.A,
-            B = sceneObject.TransVertices.Count - 2,
-            C = sceneObject.TransVertices.Count - 1,
+            B = sceneObject.TransVertices.Count - 1,
+            C = sceneObject.TransVertices.Count - 2,
 
             nA = triangle.nA,
-            nB = sceneObject.TransNormals.Count - 2,
-            nC = sceneObject.TransNormals.Count - 1,
+            nB = sceneObject.TransNormals.Count - 1,
+            nC = sceneObject.TransNormals.Count - 2,
 
             uvA = triangle.uvA,
-            uvB = sceneObject.ClipUVs.Count - 2,
-            uvC = sceneObject.ClipUVs.Count - 1,
+            uvB = sceneObject.ClipUVs.Count - 1,
+            uvC = sceneObject.ClipUVs.Count - 2,
 
-            Shader = new ColorShader(Structs.Color.Green)
+            // Shader = new ColorShader(Structs.Color.Green)
+            Shader = sceneObject.Shader
         };
 
         sceneObject.ClipTriangles.Add(clippedTriangleLeft);
@@ -236,8 +238,8 @@ public static class MathHelpers
 
     private static void DivideTriangleMissingTwoVertices(Triangle triangle, SceneObject sceneObject, SceneCamera camera)
     {
-        float distAToNearPlane = camera.ClippingPlaneDepth - sceneObject.TransVertices[triangle.A].Z;
-        float distCToNearPlane = camera.ClippingPlaneDepth - sceneObject.TransVertices[triangle.C].Z;
+        float distAToNearPlane = camera.NearPlaneDepth + camera.ClippingOffset - sceneObject.TransVertices[triangle.A].Z;
+        float distCToNearPlane = camera.NearPlaneDepth + camera.ClippingOffset - sceneObject.TransVertices[triangle.C].Z;
 
         float distAToB = sceneObject.TransVertices[triangle.B].Z - sceneObject.TransVertices[triangle.A].Z;
         float distCToB = sceneObject.TransVertices[triangle.B].Z - sceneObject.TransVertices[triangle.C].Z;
@@ -248,8 +250,8 @@ public static class MathHelpers
         Vector3 newA = ((1f - tAB) * sceneObject.TransVertices[triangle.A]) + (tAB * sceneObject.TransVertices[triangle.B]);
         Vector3 newC = ((1f - tCB) * sceneObject.TransVertices[triangle.C]) + (tCB * sceneObject.TransVertices[triangle.B]);
 
-        sceneObject.TransVertices.Add(-newA);
-        sceneObject.TransVertices.Add(-newC);
+        sceneObject.TransVertices.Add(newA);
+        sceneObject.TransVertices.Add(newC);
 
         Vector3 newAn = ((1f - tAB) * sceneObject.TransNormals[triangle.nA]) + (tAB * sceneObject.TransNormals[triangle.nB]);
         Vector3 newCn = ((1f - tCB) * sceneObject.TransNormals[triangle.nC]) + (tCB * sceneObject.TransNormals[triangle.nB]);
@@ -274,7 +276,8 @@ public static class MathHelpers
             uvA = sceneObject.ClipUVs.Count - 2,
             uvB = triangle.uvB,
             uvC = sceneObject.ClipUVs.Count - 1,
-            Shader = new ColorShader(Structs.Color.Yellow)
+            // Shader = new ColorShader(Structs.Color.Yellow)
+            Shader = sceneObject.Shader
         };
 
         sceneObject.ClipTriangles.Add(clippedTriangle);
@@ -284,7 +287,20 @@ public static class MathHelpers
     {
         if (isA)
         {
-            DivideTriangleMissingOneVertex(new Triangle { A = triangle.C, B = triangle.A, C = triangle.B }, sceneObject, camera);
+            Triangle tri = new()
+            {
+                A = triangle.C,
+                B = triangle.A,
+                C = triangle.B,
+                nA = triangle.nC,
+                nB = triangle.nA,
+                nC = triangle.nB,
+                uvA = triangle.uvC,
+                uvB = triangle.uvA,
+                uvC = triangle.uvB
+            };
+
+            DivideTriangleMissingOneVertex(tri, sceneObject, camera);
             return;
         }
 
@@ -296,7 +312,20 @@ public static class MathHelpers
 
         if (isC)
         {
-            DivideTriangleMissingOneVertex(new Triangle { A = triangle.B, B = triangle.C, C = triangle.A }, sceneObject, camera);
+            Triangle tri = new()
+            {
+                A = triangle.B,
+                B = triangle.C,
+                C = triangle.A,
+                nA = triangle.nB,
+                nB = triangle.nC,
+                nC = triangle.nA,
+                uvA = triangle.uvB,
+                uvB = triangle.uvC,
+                uvC = triangle.uvA
+            };
+
+            DivideTriangleMissingOneVertex(tri, sceneObject, camera);
             return;
         }
     }
@@ -305,13 +334,39 @@ public static class MathHelpers
     {
         if (isAB)
         {
-            DivideTriangleMissingTwoVertices(new Triangle { A = triangle.B, B = triangle.C, C = triangle.A }, sceneObject, camera);
+            Triangle tri = new()
+            {
+                A = triangle.B,
+                B = triangle.C,
+                C = triangle.A,
+                nA = triangle.nB,
+                nB = triangle.nC,
+                nC = triangle.nA,
+                uvA = triangle.uvB,
+                uvB = triangle.uvC,
+                uvC = triangle.uvA
+            };
+
+            DivideTriangleMissingTwoVertices(tri, sceneObject, camera);
             return;
         }
 
         if (isBC)
         {
-            DivideTriangleMissingTwoVertices(new Triangle { A = triangle.C, B = triangle.A, C = triangle.B }, sceneObject, camera);
+            Triangle tri = new()
+            {
+                A = triangle.C,
+                B = triangle.A,
+                C = triangle.B,
+                nA = triangle.nC,
+                nB = triangle.nA,
+                nC = triangle.nB,
+                uvA = triangle.uvC,
+                uvB = triangle.uvA,
+                uvC = triangle.uvB
+            };
+
+            DivideTriangleMissingTwoVertices(tri, sceneObject, camera);
             return;
         }
 
